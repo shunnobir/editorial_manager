@@ -1,8 +1,9 @@
+import { cn } from "@/lib/utils";
 import React from "react";
 import { HTMLAttributes } from "react";
 
 type TextProps = {
-  variant?: "primary" | "secondary" | "neutral" | "base";
+  variant?: "primary" | "secondary" | "base" | "muted";
 } & HTMLAttributes<HTMLSpanElement>;
 
 export default function Text(props: TextProps) {
@@ -10,10 +11,10 @@ export default function Text(props: TextProps) {
   const variantClassNames = {
     primary: "text-primary",
     secondary: "text-secondary",
-    neutral: "text-neutral-400",
-    base: "text-base",
+    muted: "text-muted-foreground",
+    base: "text-foreground",
   };
-  const mergedClassNames = `${variantClassNames[variant]} ${className}`;
+  const mergedClassNames = cn(variantClassNames[variant], className);
   return (
     <span className={mergedClassNames} {...rest}>
       {children}
