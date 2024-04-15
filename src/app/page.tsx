@@ -14,7 +14,7 @@ export default function Home() {
 
   const role = searchParams.get("role");
   if (role === "editor") {
-    redirect("/editor");
+    redirect("/editor/dashboard");
   } else if (role === "reviewer") {
     redirect("/reviewer");
   } else {
