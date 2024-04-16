@@ -1,9 +1,10 @@
 import React from "react";
 import Row from "./Row";
 import Column from "./Column";
+import { cn } from "@/lib/utils";
 
 type EMLogoProps = {
-  size?: number | string;
+  size?: number;
   variant?: "long" | "short";
 } & React.HTMLAttributes<HTMLOrSVGElement>;
 
@@ -14,7 +15,12 @@ export default function EMLogo({
   ...rest
 }: EMLogoProps) {
   return (
-    <Row className="gap-3 items-center">
+    <Row
+      className={cn(
+        "items-center overflow-hidden relative gap-3 transition-all duration-200"
+        // variant !== "long" && "w-fit"
+      )}
+    >
       <svg
         width={size}
         height={size}
@@ -32,17 +38,23 @@ export default function EMLogo({
           fill="#0C4A6E"
         />
       </svg>
-      {variant === "long" ? (
-        <Column style={{ height: size }}>
-          <span className="text-xl font-semibold leading-6">
-            <span className="text-primary">Editorial </span>
-            <span className="text-muted-foreground">Manager</span>
-          </span>
-          <span className="text-muted-foreground text-xs">
-            University of Chittagong
-          </span>
-        </Column>
-      ) : null}
+      {/* {variant === "long" ? ( */}
+      <Column
+        style={{ height: size }}
+        className={cn(
+          variant === "long" && "animate-slide-right",
+          variant !== "long" && "animate-slide-left"
+        )}
+      >
+        <span className="text-xl font-semibold leading-6">
+          <span className="text-primary">Editorial </span>
+          <span className="text-muted-foreground">Manager</span>
+        </span>
+        <span className="text-muted-foreground text-xs">
+          University of Chittagong
+        </span>
+      </Column>
+      {/* ) : null} */}
     </Row>
   );
 }

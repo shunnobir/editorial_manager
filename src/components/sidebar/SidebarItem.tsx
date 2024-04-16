@@ -3,6 +3,8 @@ import React, { useMemo } from "react";
 import Row from "../Row";
 import { ChevronRight } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
+import { useSidebar } from "@/hooks/useSidebar";
+import { cn } from "@/lib/utils";
 
 export interface SidebarItemType {
   href: string;
@@ -18,25 +20,35 @@ function SidebarItem({ href, Icon, label }: SidebarItemProps) {
     return pathname === href.toLowerCase();
   }, [href, pathname]);
   const router = useRouter();
+  const { isOpen } = useSidebar();
 
   return (
     <Link
       href={href}
-      className={
-        "hover:bg-muted rounded-xl p-2.5 " +
-        (active ? "bg-muted" : "bg-background")
-      }
+      className={cn(
+        "transition-all duration-300 ease-in-out hover:bg-muted rounded-xl p-2.5 overflow-hidden ",
+        active ? "bg-muted" : "bg-background"
+      )}
     >
       <Row
-        className={
-          "items-center " + (active ? "text-primary" : "text-foreground")
-        }
+        className={cn(
+          "items-center overflow-hidden ",
+          active ? "text-primary" : "text-foreground"
+        )}
       >
-        <Row className="gap-3 items-center">
+        <Row className={cn("items-center overflow-hidden relative gap-3")}>
           <Icon size="24" strokeWidth={1.5} />
-          <span>{label}</span>
+          <span
+            className={cn(
+              "transition-all duration-300 ease-in-out",
+              isOpen && "animate-slide-right",
+              !isOpen && "animate-slide-left"
+            )}
+          >
+            {label}
+          </span>
         </Row>
-        {active ? (
+        {active && isOpen ? (
           <ChevronRight size="24" className="ml-auto" strokeWidth={1.5} />
         ) : null}
       </Row>

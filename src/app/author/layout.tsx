@@ -1,8 +1,10 @@
 "use client";
 
+import Column from "@/components/Column";
 import Page from "@/components/Page";
 import Sidebar from "@/components/sidebar/Sidebar";
 import { SidebarItemType } from "@/components/sidebar/SidebarItem";
+import Topbar from "@/components/topbar/Topbar";
 import {
   FileCheck2,
   FilePlus2,
@@ -42,7 +44,10 @@ function Layout({ children }: { children: React.ReactNode }) {
   return (
     <Page className="">
       <Sidebar items={items} />
-      {children}
+      <Column className="px-[55px] py-[40px] gap-[30px] flex-1">
+        <Topbar />
+        {children}
+      </Column>
     </Page>
   );
 }

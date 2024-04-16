@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Footer from "@/components/Footer";
 import { Inter } from "next/font/google";
+import RootLayoutBody from "@/components/layout/rootLayoutBody";
 
 export const metadata: Metadata = {
   title: "Editorial Manager",
@@ -31,8 +32,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.className + " w-full min-h-screen"}>
       <body className="w-full min-h-screen flex flex-col">
-        {children}
-        <Footer />
+        <RootLayoutBody>{children}</RootLayoutBody>
       </body>
     </html>
   );
