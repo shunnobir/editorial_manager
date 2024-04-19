@@ -1,10 +1,29 @@
-import React from "react";
+import React, { useMemo } from "react";
 import Row from "../Row";
 import { Button } from "../ui/button";
-import { Bell, Menu, Settings } from "lucide-react";
+import { Bell, Home, Menu, Settings } from "lucide-react";
 import { useSidebar } from "@/hooks/useSidebar";
+import Column from "../Column";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "../ui/breadcrumb";
+import { usePathname } from "next/navigation";
 
 function Topbar() {
+  return (
+    <Column className="gap-[30px]">
+      <TopbarTop />
+      <TopbarBottom />
+    </Column>
+  );
+}
+
+function TopbarTop() {
   const { isOpen, setIsOpen } = useSidebar();
 
   return (
@@ -39,6 +58,49 @@ function Topbar() {
           />
         </Button>
       </Row>
+    </Row>
+  );
+}
+
+function TopbarBottom() {
+  const pathname = usePathname();
+  const pathnameSegments = useMemo(() => {
+    return pathname.split("/");
+  }, [pathname]);
+  return (
+    <Row>
+      <Breadcrumb>
+        <BreadcrumbList>
+          {pathnameSegments.map((segment, index) => {
+            return (
+              <Row className="items-center gap-2" key={index}>
+                <BreadcrumbItem key={index}>
+                  {index < pathnameSegments.length - 1 ? (
+                    <BreadcrumbLink
+                      href={pathnameSegments.slice(0, index + 1).join("/")}
+                    >
+                      {index === 0 ? (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className={"w-6 h-6 shadow-md rounded-sm"}
+                        >
+                          <Home size={16} />
+                        </Button>
+                      ) : (
+                        segment
+                      )}
+                    </BreadcrumbLink>
+                  ) : (
+                    <BreadcrumbPage>{segment}</BreadcrumbPage>
+                  )}
+                </BreadcrumbItem>
+                {index < pathnameSegments.length - 1 && <BreadcrumbSeparator />}
+              </Row>
+            );
+          })}
+        </BreadcrumbList>
+      </Breadcrumb>
     </Row>
   );
 }
