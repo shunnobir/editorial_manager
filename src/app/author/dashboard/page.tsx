@@ -8,6 +8,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Input } from "@/components/ui/input"
+import { DataTable } from "@/components/authors/DataTable";
 
 function Dashboard() {
   return (
@@ -56,6 +58,8 @@ function Dashboard() {
           </Card>
         </div>
       </div>
+      
+      <DataTable/>
     </div>
   );
 }
