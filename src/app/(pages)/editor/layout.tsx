@@ -6,10 +6,12 @@ import Sidebar from "@/components/sidebar/Sidebar";
 import { SidebarItemType } from "@/components/sidebar/SidebarItem";
 import Topbar from "@/components/topbar/Topbar";
 import {
+  FileCheck,
   FileCheck2,
   FilePlus2,
   FileStack,
   LayoutDashboard,
+  UsersRound,
 } from "lucide-react";
 import React, { useMemo } from "react";
 
@@ -20,36 +22,23 @@ function Layout({ children }: { children: React.ReactNode }) {
       {
         Icon: LayoutDashboard, // Icon is just a Lucide Icon component
         label: "Dashboard",
-        href: "/author/dashboard",
+        href: "/editor/dashboard",
       },
       {
-        Icon: FilePlus2,
-        label: "New Proposal",
-        href: "/author/proposal",
+        Icon: UsersRound,
+        label: "Reviewers",
+        href: "/editor/reviewers",
       },
       {
-        Icon: FileStack,
-        label: "Revisions",
-        href: "/author/revisions",
-      },
-      {
-        Icon: FileCheck2,
-        label: "Completed",
-        href: "/author/completed",
+        Icon: FileCheck,
+        label: "Assigned",
+        href: "/editor/assigned",
       },
     ],
     []
   );
 
-  return (
-    <Page className="">
-      <Sidebar items={items} />
-      <Column className="px-[55px] py-[40px] gap-[30px] flex-1">
-        <Topbar />
-        {children}
-      </Column>
-    </Page>
-  );
+  return <Page>{children}</Page>;
 }
 
 export default Layout;

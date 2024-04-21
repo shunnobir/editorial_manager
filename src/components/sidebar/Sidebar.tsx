@@ -9,7 +9,7 @@ type SidebarProps = {
 
 function Sidebar({ items }: SidebarProps) {
   return (
-    <nav className="flex flex-col py-[30px] px-5 border-r border-solid border-border transition-all duration-200 min-h-full justify-between">
+    <nav className="sticky top-0 flex flex-col py-[30px] px-5 border-r border-solid border-border transition-all duration-200 justify-between min-h-full max-h-screen items-center">
       <SidebarTop items={items} />
       <SidebarBottom />
     </nav>
