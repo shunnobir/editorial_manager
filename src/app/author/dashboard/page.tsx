@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input"
-import { DataTable } from "@/components/authors/DataTable";
+import { DashDataTable} from "@/components/authors/DashDataTable";
 
 function Dashboard() {
   return (
@@ -59,7 +59,7 @@ function Dashboard() {
         </div>
       </div>
       
-      <DataTable/>
+      <DashDataTable/>
     </div>
   );
 }
