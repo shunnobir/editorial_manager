@@ -5,6 +5,7 @@ import EMLogo from "@/components/EMLogo";
 import Page from "@/components/Page";
 import Text from "@/components/Text";
 import { Button } from "@/components/ui/button";
+import { useUserRole } from "@/hooks/useUserRole";
 import { redirect, useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
@@ -12,31 +13,43 @@ export default function Home() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const role = searchParams.get("role");
-  if (role === "editor") {
-    redirect("/editor/dashboard");
-  } else if (role === "reviewer") {
-    redirect("/reviewer");
-  } else {
-    redirect("/author");
-  }
+  const userRole = useUserRole();
+  // if (role === "editor") {
+  //   redirect("/editor/dashboard");
+  // } else if (role === "reviewer") {
+  //   redirect("/reviewer");
+  // } else {
+  //   redirect("/author");
+  // }
 
   return (
-    <Page className="flex flex-col">
-      <Column className="flex-1 w-full p-8 items-center justify-center gap-8">
-        <EMLogo size={200} />
-        <Text variant="primary" className="text-5xl uppercase font-semibold">
-          Editorial <Text variant="muted">Manager</Text>
-        </Text>
-      </Column>
-      <Column className="flex-1 items-center gap-2">
-        <Button>Default me</Button>
-        <Button variant="destructive">Destruct me</Button>
-        <Button variant="ghost"> Ghost me</Button>
-        <Button variant="link"> Link me</Button>
-        <Button variant="outline"> Outline me</Button>
-        <Button variant="secondary"> Secondary me</Button>
-      </Column>
+    <Page className="items-center justify-center gap-4">
+      <Button
+        onClick={() => {
+          userRole?.setRole("author");
+          router.push("/author/dashboard");
+        }}
+      >
+        Login as Author
+      </Button>
+
+      <Button
+        onClick={() => {
+          userRole?.setRole("editor");
+          router.push("/editor/dashboard");
+        }}
+      >
+        Login as Editor
+      </Button>
+
+      <Button
+        onClick={() => {
+          userRole?.setRole("reviewer");
+          router.push("/reviewer/dashboard");
+        }}
+      >
+        Login as Reviewer
+      </Button>
     </Page>
   );
 }

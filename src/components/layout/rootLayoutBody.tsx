@@ -1,8 +1,10 @@
 "use client";
 
 import { SidebarContext } from "@/contexts/SidebarContext";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Footer from "../Footer";
+import { UserRoleContext } from "@/contexts/UserRoleContext";
+import { usePathname, useRouter } from "next/navigation";
 
 function RootLayoutBody({
   children,
@@ -10,11 +12,28 @@ function RootLayoutBody({
   children: React.ReactNode;
 }>) {
   const [isOpen, setIsOpen] = useState(true);
+  const [role, setRole] = useState("");
+  const router = useRouter();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    const r = localStorage.getItem("role");
+    if (r) {
+      setRole(r);
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("role", role);
+  }, [role]);
+
   return (
-    <SidebarContext.Provider value={{ isOpen, setIsOpen }}>
-      {children}
-      <Footer />
-    </SidebarContext.Provider>
+    <UserRoleContext.Provider value={{ role, setRole }}>
+      <SidebarContext.Provider value={{ isOpen, setIsOpen }}>
+        {children}
+        <Footer />
+      </SidebarContext.Provider>
+    </UserRoleContext.Provider>
   );
 }
 
