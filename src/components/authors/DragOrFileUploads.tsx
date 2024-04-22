@@ -26,25 +26,49 @@ export default function DragOrFileUploads() {
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     const fileList = event.dataTransfer.files;
-    const updatedFiles: Files[] = Array.from(fileList).map((file, index) => ({
-      id: index.toString(),
-      fileName: file.name,
-      fileSize: `${file.size} bytes`,
-      fileType: file.type,
-    }));
-    setFiles(updatedFiles);
+    const newFiles: Files[] = Array.from(fileList).map((file, index) => {
+      const fileSizeKB = Math.round(file.size / 1024);
+      const fileType = file.name.split(".").pop();
+      return {
+        id: `${files.length + index}`,
+        fileName: file.name,
+        fileSize: `${fileSizeKB} KB`,
+        fileType: fileType ? fileType.toLowerCase() : "",
+      };
+    });
+    const uniqueNewFiles = newFiles.filter(
+      (newFile) =>
+        !files.some(
+          (existingFile) => existingFile.fileName === newFile.fileName
+        )
+    );
+
+    setFiles((prevFiles) => [...prevFiles, ...uniqueNewFiles]);
   };
 
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const fileList = e.target.files;
-      const updatedFiles: Files[] = Array.from(fileList).map((file, index) => ({
-        id: index.toString(),
-        fileName: file.name,
-        fileSize: `${file.size} bytes`,
-        fileType: file.type,
-      }));
-      setFiles(updatedFiles);
+      const newFiles: Files[] = Array.from(fileList).map((file, index) => {
+        const fileSizeKB = Math.round(file.size / 1024);
+        const fileType = file.name.split(".").pop();
+
+        return {
+          id: `${files.length + index}`,
+          fileName: file.name,
+          fileSize: `${fileSizeKB} KB`,
+          fileType: fileType ? fileType.toLowerCase() : "",
+        };
+      });
+
+      const uniqueNewFiles = newFiles.filter(
+        (newFile) =>
+          !files.some(
+            (existingFile) => existingFile.fileName === newFile.fileName
+          )
+      );
+
+      setFiles((prevFiles) => [...prevFiles, ...uniqueNewFiles]);
     }
   };
 

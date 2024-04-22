@@ -43,6 +43,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import Paginations from "./Paginations";
+import { Badge } from "../ui/badge";
 const data: Submissions[] = [
   {
     id: "1",
@@ -86,7 +87,7 @@ export type Submissions = {
   id: string;
   revisionID: string;
   initialSubmissionID: string;
-  status: "Pending" | "Accepted" | "Rejected";
+  status: "Pending" | "Accepted" | "Rejected";/// 
   statusDate: string;
   submissionDate: string;
   paperTitle: string;
@@ -138,10 +139,10 @@ export const columns: ColumnDef<Submissions>[] = [
         bgColorClass = "bg-[#F01217]";
       }
       return (
-        <Button className={`btn gap-2 ${bgColorClass}`}>
+        <Badge className={`btn gap-2 ${bgColorClass}`}>
           {icon}
           {row.getValue("status")}
-        </Button>
+        </Badge>
       );
     },
   },
