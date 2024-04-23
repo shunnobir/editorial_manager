@@ -8,16 +8,19 @@ export default function DashCards() {
       title: "Total Submissions",
       middle: "10",
       bottom: "+2 submissions this year",
+      Icon: Files,
     },
     {
       title: "Total Submissions",
       middle: "10",
       bottom: "+2 submissions this year",
+      Icon: FileClock,
     },
     {
       title: "Total Submissions",
       middle: "10",
       bottom: "+2 submissions this year",
+      Icon: FileCheck2,
     },
   ];
   return (
@@ -25,12 +28,14 @@ export default function DashCards() {
       <div className="flex flex-col gap-4">
         <div className="grid gap-7 grid-cols-4">
           {cards.map((card, index) => (
-            <Card key={index}> {/* Added key prop for unique identification */}
+            <Card key={index}>
+              {" "}
+              {/* Added key prop for unique identification */}
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-md font-medium">
                   {card.title}
                 </CardTitle>
-                <Files className="h-5 w-5 text-muted-foreground" />
+                <card.Icon size={20} className="text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-4xl font-bold">{card.middle}</div>
