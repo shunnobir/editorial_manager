@@ -13,6 +13,7 @@ import {
   BreadcrumbSeparator,
 } from "../ui/breadcrumb";
 import { usePathname } from "next/navigation";
+import { useUserRole } from "@/hooks/useUserRole";
 
 function Topbar() {
   return (
@@ -63,6 +64,7 @@ function TopbarTop() {
 }
 
 function TopbarBottom() {
+  const userRole = useUserRole();
   const pathname = usePathname();
   const pathnameSegments = useMemo(() => {
     return pathname.split("/");
@@ -77,7 +79,10 @@ function TopbarBottom() {
                 <BreadcrumbItem key={index}>
                   {index < pathnameSegments.length - 1 ? (
                     <BreadcrumbLink
-                      href={pathnameSegments.slice(0, index + 1).join("/")}
+                      href={
+                        pathnameSegments.slice(0, index + 1).join("/") ||
+                        `/${userRole?.role.toLowerCase() || "author"}/dashboard`
+                      }
                     >
                       {index === 0 ? (
                         <Button

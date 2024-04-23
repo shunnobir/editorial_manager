@@ -28,9 +28,11 @@
     }
   },
   "include": [
+    "types.d.ts",
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
+    "**/*.d.ts",
     ".next/types/**/*.ts",
     "**/*.js",
     "**/*.jsx"

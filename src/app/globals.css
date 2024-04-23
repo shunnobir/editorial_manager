@@ -29,7 +29,8 @@
     --destructive-foreground: 202 0% 100%;
 
     --border: 202 20% 82%;
-    --input: 202 20% 50%;
+    /* --input: 202 20% 50%; */
+    --input: var(--border);
     --ring: 202 80.3% 23.9%;
     --radius: 0.75rem;
   }
@@ -59,7 +60,8 @@
     --destructive-foreground: 202 0% 100%;
 
     --border: 202 20% 50%;
-    --input: 202 20% 50%;
+    /* --input: 202 20% 50%; */
+    --input: var(--border);
     --ring: 202 80.3% 23.9%;
     --radius: 0.75rem;
   }
