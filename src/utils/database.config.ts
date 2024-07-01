@@ -9,7 +9,7 @@ const psql = postgres({
   username: PGUSER,
   password: PGPASSWORD,
   port: 5432,
-  ssl: "require",
+  ssl: "allow",
 });
 
 export default psql;

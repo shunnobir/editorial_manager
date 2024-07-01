@@ -29,10 +29,11 @@ export enum SubmissionStatus {
 
 export interface Submission {
   submission_id: string;
-  revision_id: string;
+  initial_submission_id: string;
   author_id: typeof Pick<User, "user_id">;
   status: SubmissionStatus;
   submission_date: Date;
+  status_date: Date;
   paper_title: string;
   keywords: string;
 }
@@ -43,12 +44,13 @@ export interface SubmissionStatusHistory {
   status: SubmissionStatus;
 }
 
-export interface File {
+export interface EMFile {
   file_id: string;
   submission_id: typeof Pick<Submission, "submission_id">;
   file_size: number;
-  file_content: Blob;
+  file_url: string;
   file_name: string;
+  file_type: string;
 }
 
 export interface Submission_E extends Submission {

@@ -18,15 +18,15 @@ function Submission({ params }: { params: { id: string } }) {
   const submission: Submission_E = useMemo(
     () =>
       submissions.find((s) =>
-        s.revision_id
-          ? s.revision_id === params.id
-          : s.submission_id === params.id
+        s.submission_id
+          ? s.submission_id === params.id
+          : s.initial_submission_id === params.id
       )!,
     [params]
   );
 
   const submissionType = useMemo(
-    () => (submission.revision_id ? "Revised" : "Initial"),
+    () => (submission.submission_id ? "Revised" : "Initial"),
     [submission]
   );
 
@@ -61,13 +61,19 @@ function Submission({ params }: { params: { id: string } }) {
             <Text variant="primary" className="text-sm">
               Initial Submission ID
             </Text>
-            <Text className="text-sm">{submission.submission_id}</Text>
+            <Text className="text-sm">
+              {submission.initial_submission_id || submission.submission_id}
+            </Text>
           </Column>
           <Column className="gap-1 flex-1">
             <Text variant="primary" className="text-sm">
               Revision ID
             </Text>
-            <Text className="text-sm">{submission.revision_id || "N/A"}</Text>
+            <Text className="text-sm">
+              {submission.initial_submission_id
+                ? submission.submission_id
+                : "N/A"}
+            </Text>
           </Column>
         </Row>
 

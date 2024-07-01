@@ -3,7 +3,7 @@ import { SubmissionStatus, Submission_E } from "@/types.d";
 export const submissions: Submission_E[] = [
   {
     // submission_id: "1",
-    revision_id: "",
+    initial_submission_id: "",
     submission_id: "ASJ98KJ23",
     paper_title: "A Review of Innovative Teaching Methods",
     submission_date: new Date("Feb 20, 2024"),
@@ -37,8 +37,8 @@ export const submissions: Submission_E[] = [
   },
   {
     // submission_id: "1",
-    revision_id: "POL329KJ",
-    submission_id: "ASJ98KJ23",
+    submission_id: "POL329KJ",
+    initial_submission_id: "ASJ98KJ23",
     paper_title: "A Review of Innovative Teaching Methods",
     submission_date: new Date("Feb 20, 2024"),
     status: SubmissionStatus.Rejected,
@@ -48,22 +48,22 @@ export const submissions: Submission_E[] = [
     status_history: [
       // sorted in descending order by status_date
       {
-        submission_id: "ASJ98KJ23",
+        submission_id: "POL329KJ",
         status: SubmissionStatus.Accepted,
         status_date: new Date("March 05, 2024"),
       },
       {
-        submission_id: "ASJ98KJ23",
+        submission_id: "POL329KJ",
         status: SubmissionStatus.Reviewed,
         status_date: new Date("Feb 29, 2024"),
       },
       {
-        submission_id: "ASJ98KJ23",
+        submission_id: "POL329KJ",
         status: SubmissionStatus.Assigned,
         status_date: new Date("Feb 21, 2024"),
       },
       {
-        submission_id: "ASJ98KJ23",
+        submission_id: "POL329KJ",
         status: SubmissionStatus.Submitted,
         status_date: new Date("Feb 20, 2024"),
       },
@@ -71,8 +71,8 @@ export const submissions: Submission_E[] = [
   },
   {
     // submission_id: "1",
-    revision_id: "MN32HQWJ",
-    submission_id: "ASJ98KJ23",
+    submission_id: "MN32HQWJ",
+    initial_submission_id: "ASJ98KJ23",
     paper_title: "A Review of Innovative Teaching Methods",
     submission_date: new Date("Feb 20, 2024"),
     status: SubmissionStatus.Submitted,
@@ -82,22 +82,22 @@ export const submissions: Submission_E[] = [
     status_history: [
       // sorted in descending order by status_date
       {
-        submission_id: "ASJ98KJ23",
+        submission_id: "MN32HQWJ",
         status: SubmissionStatus.Accepted,
         status_date: new Date("March 05, 2024"),
       },
       {
-        submission_id: "ASJ98KJ23",
+        submission_id: "MN32HQWJ",
         status: SubmissionStatus.Reviewed,
         status_date: new Date("Feb 29, 2024"),
       },
       {
-        submission_id: "ASJ98KJ23",
+        submission_id: "MN32HQWJ",
         status: SubmissionStatus.Assigned,
         status_date: new Date("Feb 21, 2024"),
       },
       {
-        submission_id: "ASJ98KJ23",
+        submission_id: "MN32HQWJ",
         status: SubmissionStatus.Submitted,
         status_date: new Date("Feb 20, 2024"),
       },
@@ -105,8 +105,8 @@ export const submissions: Submission_E[] = [
   },
   {
     // submission_id: "1",
-    revision_id: "YAJDH32HD",
-    submission_id: "ASJ98KJ23",
+    submission_id: "YAJDH32HD",
+    initial_submission_id: "ASJ98KJ23",
     paper_title: "A Review of Innovative Teaching Methods",
     submission_date: new Date("Feb 20, 2024"),
     status: SubmissionStatus.Assigned,
@@ -116,22 +116,22 @@ export const submissions: Submission_E[] = [
     status_history: [
       // sorted in descending order by status_date
       {
-        submission_id: "ASJ98KJ23",
+        submission_id: "YAJDH32HD",
         status: SubmissionStatus.Accepted,
         status_date: new Date("March 05, 2024"),
       },
       {
-        submission_id: "ASJ98KJ23",
+        submission_id: "YAJDH32HD",
         status: SubmissionStatus.Reviewed,
         status_date: new Date("Feb 29, 2024"),
       },
       {
-        submission_id: "ASJ98KJ23",
+        submission_id: "YAJDH32HD",
         status: SubmissionStatus.Assigned,
         status_date: new Date("Feb 21, 2024"),
       },
       {
-        submission_id: "ASJ98KJ23",
+        submission_id: "YAJDH32HD",
         status: SubmissionStatus.Submitted,
         status_date: new Date("Feb 20, 2024"),
       },
@@ -139,7 +139,7 @@ export const submissions: Submission_E[] = [
   },
   {
     // submission_id: "1",
-    revision_id: "",
+    initial_submission_id: "",
     submission_id: "EWKJ32ASMNA",
     paper_title: "A Review of Innovative Teaching Methods",
     submission_date: new Date("Feb 20, 2024"),
