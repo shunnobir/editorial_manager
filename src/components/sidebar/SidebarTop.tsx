@@ -7,6 +7,7 @@ import { SidebarItemType } from "./SidebarItem";
 import { useSidebar } from "@/hooks/useSidebar";
 import Link from "next/link";
 import { useUserRole } from "@/hooks/useUserRole";
+import { useRouter } from "next/navigation";
 
 type SidebarTopProps = {
   items: SidebarItemType[];
@@ -15,13 +16,18 @@ type SidebarTopProps = {
 function SidebarTop({ items }: SidebarTopProps) {
   const userRole = useUserRole();
   const { isOpen } = useSidebar();
+  const router = useRouter();
   return (
-    <Link href={`/${userRole?.role.toLowerCase() || "author"}/dashboard`}>
-      <Column className="gap-10 transition-all duration-200">
-        <EMLogo size={40} variant={isOpen ? "long" : "short"} />
-        <SidebarItems items={items} />
-      </Column>
-    </Link>
+    <Column className="gap-10 transition-all duration-200">
+      <EMLogo
+        size={40}
+        variant={isOpen ? "long" : "short"}
+        onClick={() =>
+          router.push(`/${userRole?.role.toLowerCase() || "author"}/dashboard`)
+        }
+      />
+      <SidebarItems items={items} />
+    </Column>
   );
 }
 

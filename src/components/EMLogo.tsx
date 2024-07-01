@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 type EMLogoProps = {
   size?: number;
   variant?: "long" | "short";
-} & React.HTMLAttributes<HTMLOrSVGElement>;
+} & React.HTMLAttributes<HTMLDivElement>;
 
 // Default size 64
 export default function EMLogo({
@@ -17,9 +17,10 @@ export default function EMLogo({
   return (
     <Row
       className={cn(
-        "items-center overflow-hidden relative gap-3 transition-all duration-200"
+        "items-center overflow-hidden relative gap-3 transition-all duration-200 cursor-pointer"
         // variant !== "long" && "w-fit"
       )}
+      {...rest}
     >
       <svg
         width={size}
@@ -27,7 +28,6 @@ export default function EMLogo({
         viewBox="0 0 40 40"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        {...rest}
       >
         <path
           d="M0 6C0 2.68629 2.68629 0 6 0H34C37.3137 0 40 2.68629 40 6V34C40 37.3137 37.3137 40 34 40H6C2.68629 40 0 37.3137 0 34V6Z"

@@ -1,5 +1,5 @@
 "use client";
-import React,{useState} from "react";
+import React, { useState } from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -47,8 +47,9 @@ import Paginations from "./Paginations";
 export type ShowFiles = {
   id: string;
   fileName: string;
-  fileSize: string;
+  fileSize: number;
   fileType: string;
+  file: Blob;
 };
 
 export const columns: ColumnDef<ShowFiles>[] = [
@@ -61,7 +62,10 @@ export const columns: ColumnDef<ShowFiles>[] = [
     accessorKey: "fileSize",
     header: "File Size",
     cell: ({ row }) => (
-      <div className="">{row.getValue("fileSize")}</div>
+      <div className="">
+        {row.getValue("fileSize")}
+        {" KB"}
+      </div>
     ),
   },
 
@@ -97,15 +101,14 @@ export const columns: ColumnDef<ShowFiles>[] = [
 interface Files {
   id: string;
   fileName: string;
-  fileSize: string;
+  fileSize: number;
   fileType: string;
+  file: Blob;
 }
 
 interface DragDataTableProps {
   files: Files[];
 }
-
-
 
 const DragDataTable: React.FC<DragDataTableProps> = ({ files }) => {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -114,7 +117,7 @@ const DragDataTable: React.FC<DragDataTableProps> = ({ files }) => {
   const [currentPage, setCurrentPage] = React.useState(1);
 
   const table = useReactTable({
-    data:files,
+    data: files,
     columns,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -124,13 +127,13 @@ const DragDataTable: React.FC<DragDataTableProps> = ({ files }) => {
       columnFilters,
     },
   });
-  
+
   const totalItems = files.length;
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
-  
+
   const startIndex = (currentPage - 1) * 5;
   const endIndex = Math.min(startIndex + 5, files.length);
   const currentPageRows = files.slice(startIndex, endIndex);

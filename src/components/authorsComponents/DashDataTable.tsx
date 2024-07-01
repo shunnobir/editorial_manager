@@ -50,6 +50,7 @@ import {
   Submission_E,
   SubmissionStatusHistory,
   SubmissionStatus,
+  Submission,
 } from "@/types.d";
 import { Pagination } from "../ui/pagination";
 import {
@@ -82,18 +83,26 @@ import PaperStatusBadge from "../PaperStatusBadge";
 //   paperTitle: string;
 // };
 
-export const columns: ColumnDef<Submission_E>[] = [
+export const columns: ColumnDef<Submission>[] = [
   {
-    accessorKey: "revision_id",
+    accessorKey: "submission_id",
     header: "Revision ID",
     cell: ({ row }) => (
-      <div className="">{row.getValue("revision_id") || "N/A"}</div>
+      <div className="">
+        {row.getValue("initial_submission_id")
+          ? row.getValue("submission_id")
+          : "N/A"}
+      </div>
     ),
   },
   {
-    accessorKey: "submission_id",
+    accessorKey: "initial_submission_id",
     header: "Initial Submission ID",
-    cell: ({ row }) => <div className="">{row.getValue("submission_id")}</div>,
+    cell: ({ row }) => (
+      <div className="">
+        {row.getValue("initial_submission_id") || row.getValue("submission_id")}
+      </div>
+    ),
   },
 
   {
@@ -113,14 +122,10 @@ export const columns: ColumnDef<Submission_E>[] = [
     },
   },
   {
-    accessorKey: "status_history",
+    accessorKey: "status_date",
     header: "Status Date",
     cell: ({ row }) => (
-      <div className="">
-        {row
-          .getValue<SubmissionStatusHistory[]>("status_history")[0]
-          .status_date.toString()}
-      </div>
+      <div className="">{row.getValue<Date>("status_date").toString()}</div>
     ),
   },
   {
@@ -156,7 +161,7 @@ export const columns: ColumnDef<Submission_E>[] = [
 ];
 
 type DashDataTableProps = {
-  data: Submission_E[];
+  data: Submission[];
   label: string;
   subheading: string;
 };
