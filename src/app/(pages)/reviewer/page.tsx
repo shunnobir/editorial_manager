@@ -1,10 +1,8 @@
-import Page from "@/components/Page";
-import Text from "@/components/Text";
+import { redirect } from "next/navigation";
+import React from "react";
 
-export default function Home() {
-  return (
-    <Page>
-      <Text>Reviewer Page</Text>
-    </Page>
-  );
+function page() {
+  redirect("/reviewer/dashboard");
 }
+
+export default page;

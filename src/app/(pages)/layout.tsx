@@ -25,30 +25,24 @@ function Layout({ children }: { children: React.ReactNode }) {
       userRole?.role === "reviewer"
         ? [
             {
-              Icon: LayoutDashboard, // Icon is just a Lucide Icon component
+              Icon: LayoutDashboard, 
               label: "Dashboard",
-              href: "/author/dashboard",
-            },
-            {
-              Icon: FilePlus2,
-              label: "New Proposal",
-              href: "/author/proposal",
-            },
-            {
+              href: "/reviewer/dashboard",
+            },{
               Icon: FileStack,
-              label: "Revisions",
-              href: "/author/revisions",
+              label: "Assigned",
+              href: "/reviewer/assigned",
             },
             {
               Icon: FileCheck2,
               label: "Completed",
-              href: "/author/completed",
-            },
+              href: "/reviewer/completed",
+            }
           ]
         : userRole?.role === "editor"
         ? [
             {
-              Icon: LayoutDashboard, // Icon is just a Lucide Icon component
+              Icon: LayoutDashboard, 
               label: "Dashboard",
               href: "/editor/dashboard",
             },
@@ -61,7 +55,7 @@ function Layout({ children }: { children: React.ReactNode }) {
               Icon: FileCheck,
               label: "Assigned",
               href: "/editor/assigned",
-            },
+            }
           ]
         : [
             {
