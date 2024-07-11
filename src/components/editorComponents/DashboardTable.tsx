@@ -17,6 +17,7 @@ import {
   ChevronLeft,
   ChevronRight,
   MoreVertical,
+  Search,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -35,10 +36,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  SubmissionStatus,
-  Submission,
-} from "@/types.d";
+import { SubmissionStatus, Submission } from "@/types.d";
 import {
   Select,
   SelectContent,
@@ -52,25 +50,19 @@ import Text from "../Text";
 import Row from "../Row";
 import { useRouter } from "next/navigation";
 import PopUp from "./PopUp";
-
+import { AssignedTable } from "./AssignedTable";
 
 export const columns: ColumnDef<Submission>[] = [
   {
     accessorKey: "submission_id",
     header: "Revision ID",
-    cell: ({ row }) => (
-      <div className="">
-        {row.getValue("submission_id")}
-      </div>
-    ),
+    cell: ({ row }) => <div className="">{row.getValue("submission_id")}</div>,
   },
   {
     accessorKey: "initial_submission_id",
     header: "Initial Submission ID",
     cell: ({ row }) => (
-      <div className="">
-        {row.getValue("initial_submission_id")}
-      </div>
+      <div className="">{row.getValue("initial_submission_id")}</div>
     ),
   },
 
@@ -100,20 +92,47 @@ export const columns: ColumnDef<Submission>[] = [
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
-      
+      const [isModalOpen, setModalOpen] = React.useState(true);
+      const [newData, setNewData] = React.useState([]);
+
+      const handleAssignReviewerClick = () => {
+        setModalOpen(true);
+      };
+
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreVertical className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem >Assign Reviewer</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem onClick={handleAssignReviewerClick}>
+                Assign Reviewer
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          {isModalOpen && (
+            <div className="fixed inset-0 flex items-center justify-center z-50">
+              <div className="fixed inset-0 bg-black opacity-50"></div>
+              <div className="bg-white p-8 rounded shadow-lg z-50 w-3/4">
+                <AssignedTable
+                  data={newData}
+                  label="Assigned Reviewers(1/2)"
+                  subheading="This is the list of reviewers assigned for the paper."
+                />
+                
+                <div className="flex gap-4 mb-4">
+                  <Button onClick={() => setModalOpen(false)}>Cancel</Button>
+                  <Button onClick={() => setModalOpen(false)}>Finished</Button>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
       );
     },
   },
@@ -125,7 +144,11 @@ type DashboardTableProps = {
   subheading: string;
 };
 
-export function DashboardTable({ data, label, subheading }: DashboardTableProps) {
+export function DashboardTable({
+  data,
+  label,
+  subheading,
+}: DashboardTableProps) {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
@@ -188,7 +211,6 @@ export function DashboardTable({ data, label, subheading }: DashboardTableProps)
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
