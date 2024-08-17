@@ -1,21 +1,38 @@
 export interface User {
-  user_id: string;
-  profile_image_id: number;
-  sign_id: number;
-  parmanent_address_id: number;
-  present_address_id: number;
+  address_id: number;
+  blood_group: string | null;
+  dob: Date;
   email: string;
-  phone: number;
-  user_first_name_bn: string;
-  user_last_name_bn: string;
-  user_first_name_en: string;
-  user_last_name_en: string;
-  gender: string;
-  blood_group: string;
-  religion: string;
-  ethnicity: string;
-  Nationality: string;
-  dob: timestamp;
+  ethnicity: string | null;
+  first_name: string;
+  first_name_bn: string | null;
+  gender: string | null;
+  last_name: string;
+  last_name_bn: string | null;
+  nationality: string | null;
+  password: string;
+  phone: string | null;
+  profile_image_id: number | null;
+  religion: string | null;
+  sign_id: number | null;
+  user_id: string;
+}
+
+export interface Teacher {
+  area_of_interest: string;
+  department_id: number;
+  designation: string;
+  teacher_id: number;
+  title: string;
+  user_id: string;
+}
+
+export interface Role {
+  user_id: string;
+  end_date: Date | null;
+  factor: string;
+  role: string;
+  start_date: Date;
 }
 
 export enum SubmissionStatus {
@@ -29,8 +46,8 @@ export enum SubmissionStatus {
 
 export interface Submission {
   submission_id: string;
-  initial_submission_id: string;
-  author_id: typeof Pick<User, "user_id">;
+  initial_submission_id: string | null;
+  author_id: number;
   status: SubmissionStatus;
   submission_date: Date;
   status_date: Date;
@@ -55,4 +72,25 @@ export interface EMFile {
 
 export interface Submission_E extends Submission {
   status_history: SubmissionStatusHistory[];
+}
+
+export interface SubmissionDetail
+  extends Submission,
+    Teacher,
+    Pick<User, "first_name" | "last_name"> {}
+
+export interface Reviewer {
+  user_id: string;
+  teacher_id: number;
+  designation: string;
+  area_of_interest: string;
+  department_name: string;
+  title: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+}
+
+export interface AssignedReviewer extends Reviewer {
+  submission_id: string;
 }

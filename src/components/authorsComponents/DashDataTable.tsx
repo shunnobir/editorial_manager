@@ -66,22 +66,8 @@ import Text from "../Text";
 import Row from "../Row";
 import { useRouter } from "next/navigation";
 import PaperStatusBadge from "../PaperStatusBadge";
-// import {
-//   Submission,
-//   SubmissionStatus,
-//   SubmissionStatusHistory,
-//   Submission_E,
-// } from "@/types";
-
-// export type Submissions = {
-//   id: string;
-//   revisionID: string;
-//   initialSubmissionID: string;
-//   status: "Pending" | "Accepted" | "Rejected"; ///
-//   statusDate: string;
-//   submissionDate: string;
-//   paperTitle: string;
-// };
+import { format } from "date-fns";
+import TableLoaderSkeleton from "../TableLoaderSkeleton";
 
 export const columns: ColumnDef<Submission>[] = [
   {
@@ -116,7 +102,7 @@ export const columns: ColumnDef<Submission>[] = [
     cell: ({ row }) => {
       return (
         <div className="">
-          {row.getValue<Date>("submission_date").toString()}
+          {format(row.getValue<Date>("submission_date"), "LLL dd, yyyy")}
         </div>
       );
     },
@@ -125,7 +111,9 @@ export const columns: ColumnDef<Submission>[] = [
     accessorKey: "status_date",
     header: "Status Date",
     cell: ({ row }) => (
-      <div className="">{row.getValue<Date>("status_date").toString()}</div>
+      <div className="">
+        {format(row.getValue<Date>("status_date"), "LLL dd, yyyy")}
+      </div>
     ),
   },
   {
@@ -164,9 +152,15 @@ type DashDataTableProps = {
   data: Submission[];
   label: string;
   subheading: string;
+  loading: boolean;
 };
 
-export function DashDataTable({ data, label, subheading }: DashDataTableProps) {
+export function DashDataTable({
+  data,
+  label,
+  subheading,
+  loading,
+}: DashDataTableProps) {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
@@ -230,13 +224,9 @@ export function DashDataTable({ data, label, subheading }: DashDataTableProps) {
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                   onClick={() =>
-                    router.push(
-                      `/submissions/${
-                        row.getValue("revision_id") ||
-                        row.getValue("submission_id")
-                      }`
-                    )
+                    router.push(`/submissions/${row.getValue("submission_id")}`)
                   }
+                  className="cursor-pointer"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
@@ -248,6 +238,8 @@ export function DashDataTable({ data, label, subheading }: DashDataTableProps) {
                   ))}
                 </TableRow>
               ))
+            ) : loading ? (
+              <TableLoaderSkeleton table={table} />
             ) : (
               <TableRow>
                 <TableCell

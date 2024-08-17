@@ -7,28 +7,102 @@ import Row from "@/components/Row";
 import Text from "@/components/Text";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Submission_E } from "@/types.d";
-import { submissions } from "@/utils/submissions";
+import { EMFile, SubmissionDetail } from "@/types.d";
 import { useRouter } from "next/navigation";
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { format } from "date-fns";
+import { Skeleton } from "@/components/ui/skeleton";
+import Link from "next/link";
+import DragDataTable from "@/components/authorsComponents/DragDataTable";
+import { Axios } from "@/lib/axios";
 
-function Submission({ params }: { params: { id: string } }) {
+function SubmissionPage({ params }: { params: { id: string } }) {
   const router = useRouter();
 
-  const submission: Submission_E = useMemo(
-    () =>
-      submissions.find((s) =>
-        s.submission_id
-          ? s.submission_id === params.id
-          : s.initial_submission_id === params.id
-      )!,
-    [params]
-  );
+  const [submission, setSubmission] = useState<SubmissionDetail | null>(null);
+  const [files, setFiles] = useState<EMFile[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const submissionType = useMemo(
-    () => (submission.submission_id ? "Revised" : "Initial"),
+    () => (submission?.initial_submission_id !== null ? "Revised" : "Original"),
     [submission]
   );
+
+  useEffect(() => {
+    const getSubmission = async () => {
+      const result = await Axios.get(
+        // `http://bike-csecu.com:5000/api/editorial-manager/submission/${params.id}`,
+        `/editorial-manager/submission/${params.id}`
+      );
+      const d: { submission: SubmissionDetail } = await result.data;
+      setSubmission(d.submission);
+
+      const f = await Axios.get(
+        // `http://bike-csecu.com:5000/api/editorial-manager/file?submission_id=${params.id}`,
+        `/editorial-manager/file?submission_id=${params.id}`
+      );
+      const fs: { message: string; files: EMFile[] } = await f.data;
+      setFiles(fs.files);
+      setLoading(false);
+    };
+
+    getSubmission();
+  }, [params]);
+
+  if (loading || !submission) {
+    return (
+      <Page className="gap-[30px] flex-col">
+        <Row className="h-fit gap-2.5">
+          <Text className="text-3xl font-medium">Submission</Text>
+          <Skeleton className="w-24 h-6 rounded-sm" />
+          <Skeleton className="w-24 h-6 rounded-sm" />
+        </Row>
+
+        <Column className="gap-5">
+          <Column className="gap-1">
+            <Skeleton className="w-32 h-6 rounded-sm" />
+            <Skeleton className="w-52 h-6 rounded-sm" />
+          </Column>
+
+          <Row className="gap-5 max-w-[500px]">
+            <Column className="gap-1 flex-1">
+              <Skeleton className="w-32 h-6 rounded-sm" />
+              <Skeleton className="w-52 h-6 rounded-sm" />
+            </Column>
+            <Column className="gap-1 flex-1">
+              <Skeleton className="w-32 h-6 rounded-sm" />
+              <Skeleton className="w-52 h-6 rounded-sm" />
+            </Column>
+          </Row>
+
+          <Row className="gap-5 max-w-[500px]">
+            <Column className="gap-1 flex-1">
+              <Skeleton className="w-32 h-6 rounded-sm" />
+              <Skeleton className="w-52 h-6 rounded-sm" />
+            </Column>
+            <Column className="gap-1 flex-1">
+              <Skeleton className="w-32 h-6 rounded-sm" />
+              <Skeleton className="w-52 h-6 rounded-sm" />
+            </Column>
+          </Row>
+
+          <Column className="gap-1 flex-1">
+            <Skeleton className="w-32 h-6 rounded-sm" />
+            <Skeleton className="w-52 h-6 rounded-sm" />
+          </Column>
+
+          <Column className="gap-1 flex-1">
+            <Skeleton className="w-32 h-6 rounded-sm" />
+            <Row className="gap-5 flex-wrap">
+              {[1, 2, 3, 4, 5].map((_, index) => {
+                return <Skeleton key={index} className="w-32 h-6 rounded-sm" />;
+              })}
+            </Row>
+          </Column>
+        </Column>
+      </Page>
+    );
+  }
 
   return (
     <Page className="gap-[30px] flex-col">
@@ -43,7 +117,7 @@ function Submission({ params }: { params: { id: string } }) {
           onClick={() => router.push("#")}
         >
           <Text variant="primary" className="text-xs">
-            Writer
+            See Author
           </Text>
         </Button>
       </Row>
@@ -59,21 +133,44 @@ function Submission({ params }: { params: { id: string } }) {
         <Row className="gap-5 max-w-[500px]">
           <Column className="gap-1 flex-1">
             <Text variant="primary" className="text-sm">
-              Initial Submission ID
+              Original Submission ID
             </Text>
-            <Text className="text-sm">
-              {submission.initial_submission_id || submission.submission_id}
-            </Text>
+            <Link
+              href={`/submissions/${
+                submission.initial_submission_id || submission.submission_id
+              }`}
+            >
+              <Text className="text-sm text-blue-500 underline">
+                {submission.initial_submission_id || submission.submission_id}
+              </Text>
+            </Link>
           </Column>
           <Column className="gap-1 flex-1">
             <Text variant="primary" className="text-sm">
               Revision ID
             </Text>
-            <Text className="text-sm">
-              {submission.initial_submission_id
-                ? submission.submission_id
-                : "N/A"}
-            </Text>
+            <Link
+              href={
+                submission.initial_submission_id
+                  ? `/submissions/${
+                      submission.initial_submission_id ||
+                      submission.submission_id
+                    }`
+                  : "#"
+              }
+            >
+              <Text
+                className={`text-sm ${
+                  submission.initial_submission_id
+                    ? "text-blue-500 underline"
+                    : ""
+                }`}
+              >
+                {submission.initial_submission_id
+                  ? submission.submission_id
+                  : "N/A"}
+              </Text>
+            </Link>
           </Column>
         </Row>
 
@@ -83,7 +180,7 @@ function Submission({ params }: { params: { id: string } }) {
               Submission Date
             </Text>
             <Text className="text-sm">
-              {submission.submission_date.toDateString()}
+              {format(submission.submission_date, "LLL dd, yyyy")}
             </Text>
           </Column>
           <Column className="gap-1 flex-1">
@@ -91,7 +188,7 @@ function Submission({ params }: { params: { id: string } }) {
               Status Date
             </Text>
             <Text className="text-sm">
-              {submission.status_history[0].status_date.toDateString()}
+              {format(submission.status_date, "LLL dd, yyyy")}
             </Text>
           </Column>
         </Row>
@@ -120,8 +217,9 @@ function Submission({ params }: { params: { id: string } }) {
       </Column>
 
       {/* There will be the list of attached files */}
+      <DragDataTable files={files.map((f) => ({ ...f, file: undefined }))} />
     </Page>
   );
 }
 
-export default Submission;
+export default SubmissionPage;

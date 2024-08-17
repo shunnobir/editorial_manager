@@ -16,6 +16,7 @@ import {
   ChevronLeft,
   ChevronRight,
   MoreVertical,
+  Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,7 +35,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { SubmissionStatus, Submission } from "@/types.d";
+import {
+  SubmissionStatus,
+  Submission,
+  AssignedReviewer,
+  Reviewer,
+} from "@/types.d";
 import {
   Select,
   SelectContent,
@@ -48,35 +54,68 @@ import Text from "../Text";
 import Row from "../Row";
 import { useRouter } from "next/navigation";
 import PaperStatusBadge from "../PaperStatusBadge";
+import TableLoaderSkeleton from "../TableLoaderSkeleton";
 
-export const columns: ColumnDef<Submission>[] = [
+export const columns: ColumnDef<AssignedReviewer>[] = [
   {
-    accessorKey: "reviewer_id",
+    accessorKey: "teacher_id",
     header: "Reviewer ID",
-    cell: ({ row }) => <div className="">{row.getValue("reviewer_id")}</div>,
+    cell: ({ row }) => <div className="">{row.getValue("teacher_id")}</div>,
   },
-
   {
-    accessorKey: "reviewer_name",
+    accessorKey: "first_name",
     header: "Reviewer Name",
-    cell: ({ row }) => <div className="">{row.getValue("reviewer_name")}</div>,
+    cell: ({ row }) => (
+      <div className="">
+        {row.original.designation +
+          " " +
+          row.getValue("first_name") +
+          " " +
+          row.original.last_name}
+      </div>
+    ),
   },
   {
-    accessorKey: "department",
+    accessorKey: "department_name",
     header: "Department",
     cell: ({ row }) => {
-      return <div className="">{row.getValue("department")}</div>;
+      return <div className="">{row.getValue("department_name")}</div>;
+    },
+  },
+  {
+    id: "actions",
+    cell: ({ row, table }) => {
+      const props = table.options.meta as any;
+      return (
+        <Button
+          variant="destructive"
+          size="sm"
+          className="items-center gap-2 w-[120px]"
+          onClick={() => props?.onRemove(row.original)}
+        >
+          <Trash2 size={16} color="white" />
+          Remove
+        </Button>
+      );
     },
   },
 ];
 
 type AssignedTableProps = {
-  data: Submission[];
+  data: AssignedReviewer[];
   label: string;
   subheading: string;
+  onRemove: (reviewer: Reviewer) => void;
+  loading: boolean;
 };
 
-export function AssignedTable({ data, label, subheading }: AssignedTableProps) {
+export function AssignedTable({
+  data,
+  label,
+  subheading,
+  onRemove,
+  loading,
+}: AssignedTableProps) {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
@@ -91,6 +130,9 @@ export function AssignedTable({ data, label, subheading }: AssignedTableProps) {
     getFilteredRowModel: getFilteredRowModel(),
     state: {
       columnFilters,
+    },
+    meta: {
+      onRemove: onRemove,
     },
   });
 
@@ -132,14 +174,6 @@ export function AssignedTable({ data, label, subheading }: AssignedTableProps) {
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  onClick={() =>
-                    router.push(
-                      `/submissions/${
-                        row.getValue("revision_id") ||
-                        row.getValue("submission_id")
-                      }`
-                    )
-                  }
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
@@ -151,13 +185,15 @@ export function AssignedTable({ data, label, subheading }: AssignedTableProps) {
                   ))}
                 </TableRow>
               ))
+            ) : loading ? (
+              <TableLoaderSkeleton table={table} />
             ) : (
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  NO PROPOSALS
+                  NO REVIEWERS ASSIGNED
                 </TableCell>
               </TableRow>
             )}

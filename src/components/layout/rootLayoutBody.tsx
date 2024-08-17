@@ -1,10 +1,12 @@
 "use client";
 
 import { SidebarContext } from "@/contexts/SidebarContext";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useReducer, useState } from "react";
 import Footer from "../Footer";
 import { UserRoleContext } from "@/contexts/UserRoleContext";
 import { usePathname, useRouter } from "next/navigation";
+import { AuthContext, UserType } from "@/contexts/AuthContext";
+import { Teacher, User } from "@/types";
 
 function RootLayoutBody({
   children,
@@ -13,27 +15,30 @@ function RootLayoutBody({
 }>) {
   const [isOpen, setIsOpen] = useState(true);
   const [role, setRole] = useState("");
-  const router = useRouter();
-  const pathname = usePathname();
+
+  const [user, setUser] = useState<(User & Teacher) | null>(null);
 
   useEffect(() => {
     const r = localStorage.getItem("role");
     if (r) {
       setRole(r);
     }
+
+    const u = localStorage.getItem("user");
+    if (u) {
+      setUser(JSON.parse(u));
+    }
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem("role", role);
-  }, [role]);
-
   return (
-    <UserRoleContext.Provider value={{ role, setRole }}>
-      <SidebarContext.Provider value={{ isOpen, setIsOpen }}>
-        {children}
-        <Footer />
-      </SidebarContext.Provider>
-    </UserRoleContext.Provider>
+    <AuthContext.Provider value={{ user, setUser }}>
+      <UserRoleContext.Provider value={{ role, setRole }}>
+        <SidebarContext.Provider value={{ isOpen, setIsOpen }}>
+          {children}
+          <Footer />
+        </SidebarContext.Provider>
+      </UserRoleContext.Provider>
+    </AuthContext.Provider>
   );
 }
 

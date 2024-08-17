@@ -14,6 +14,7 @@ import {
 } from "../ui/breadcrumb";
 import { usePathname } from "next/navigation";
 import { useUserRole } from "@/hooks/useUserRole";
+import SettingsPopover from "./SettingsPopover";
 
 function Topbar() {
   return (
@@ -52,12 +53,7 @@ function TopbarTop() {
           />
         </Button>
 
-        <Button variant="ghost" size="icon" className={"shadow-md rounded-sm"}>
-          <Settings
-            size={16}
-            className={"transition-all duration-500 ease-in-out"}
-          />
-        </Button>
+        <SettingsPopover />
       </Row>
     </Row>
   );

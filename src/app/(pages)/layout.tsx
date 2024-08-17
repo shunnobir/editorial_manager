@@ -7,28 +7,34 @@ import { SidebarItemType } from "@/components/sidebar/SidebarItem";
 import Topbar from "@/components/topbar/Topbar";
 import { useUserRole } from "@/hooks/useUserRole";
 import {
+  Check,
   FileCheck,
   FileCheck2,
   FilePlus2,
   FileStack,
   LayoutDashboard,
+  Loader2,
   UsersRound,
 } from "lucide-react";
-import React, { useMemo } from "react";
+import { useRouter } from "next/navigation";
+import React, { useEffect, useMemo, useState } from "react";
 
 function Layout({ children }: { children: React.ReactNode }) {
   const userRole = useUserRole();
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
 
   // href have to be absolute path name, otherwise the sidebard wont show it as active
   const items: SidebarItemType[] = useMemo(
     () =>
-      userRole?.role === "reviewer"
+      userRole?.role.toLowerCase() === "reviewer"
         ? [
             {
-              Icon: LayoutDashboard, 
+              Icon: LayoutDashboard,
               label: "Dashboard",
               href: "/reviewer/dashboard",
-            },{
+            },
+            {
               Icon: FileStack,
               label: "Assigned",
               href: "/reviewer/assigned",
@@ -37,12 +43,12 @@ function Layout({ children }: { children: React.ReactNode }) {
               Icon: FileCheck2,
               label: "Completed",
               href: "/reviewer/completed",
-            }
+            },
           ]
-        : userRole?.role === "editor"
+        : userRole?.role.toLowerCase() === "editor"
         ? [
             {
-              Icon: LayoutDashboard, 
+              Icon: LayoutDashboard,
               label: "Dashboard",
               href: "/editor/dashboard",
             },
@@ -55,7 +61,7 @@ function Layout({ children }: { children: React.ReactNode }) {
               Icon: FileCheck,
               label: "Assigned",
               href: "/editor/assigned",
-            }
+            },
           ]
         : [
             {
@@ -81,6 +87,22 @@ function Layout({ children }: { children: React.ReactNode }) {
           ],
     [userRole]
   );
+
+  useEffect(() => {
+    if (!localStorage.getItem("session_id")) {
+      router.replace("/");
+    } else {
+      setLoading(false);
+    }
+  }, [router]);
+
+  if (loading) {
+    return (
+      <Page className="items-center justify-center flex-1">
+        <Loader2 className="mr-2 h-10 w-10 animate-spin stroke-primary" />
+      </Page>
+    );
+  }
 
   return (
     <Page>

@@ -3,28 +3,37 @@ import * as React from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
+  SortingState,
   Table as TableType,
+  VisibilityState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
+  getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import PaperStatusBadge from "../PaperStatusBadge";
 import {
   ArrowLeft,
   ArrowRight,
+  CheckCircle2,
   ChevronLeft,
   ChevronRight,
+  FileCheck,
+  FileCheck2,
+  MinusCircle,
   MoreVertical,
+  XCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
+  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
@@ -36,10 +45,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Badge } from "../ui/badge";
 import {
+  Submission_E,
+  SubmissionStatusHistory,
   SubmissionStatus,
   Submission,
 } from "@/types.d";
+import { Pagination } from "../ui/pagination";
 import {
   Select,
   SelectContent,
@@ -52,7 +65,9 @@ import Column from "../Column";
 import Text from "../Text";
 import Row from "../Row";
 import { useRouter } from "next/navigation";
-
+import PaperStatusBadge from "../PaperStatusBadge";
+import { format } from "date-fns";
+import TableLoaderSkeleton from "../TableLoaderSkeleton";
 
 export const columns: ColumnDef<Submission>[] = [
   {
@@ -60,7 +75,9 @@ export const columns: ColumnDef<Submission>[] = [
     header: "Revision ID",
     cell: ({ row }) => (
       <div className="">
-        {row.getValue("submission_id")}
+        {row.getValue("initial_submission_id")
+          ? row.getValue("submission_id")
+          : "N/A"}
       </div>
     ),
   },
@@ -69,7 +86,7 @@ export const columns: ColumnDef<Submission>[] = [
     header: "Initial Submission ID",
     cell: ({ row }) => (
       <div className="">
-        {row.getValue("initial_submission_id")}
+        {row.getValue("initial_submission_id") || row.getValue("submission_id")}
       </div>
     ),
   },
@@ -81,35 +98,69 @@ export const columns: ColumnDef<Submission>[] = [
   },
   {
     accessorKey: "submission_date",
-    header: "Submission Date",
+    header: "Submission Data",
     cell: ({ row }) => {
       return (
         <div className="">
-          {row.getValue<Date>("submission_date").toString()}
+          {format(row.getValue<Date>("submission_date"), "LLL dd, yyyy")}
         </div>
       );
     },
   },
   {
-    accessorKey: "keywords",
-    header: "Keywords",
-    cell: ({ row }) => <div className="">{row.getValue("keywords")}</div>,
+    accessorKey: "status_date",
+    header: "Status Date",
+    cell: ({ row }) => (
+      <div className="">
+        {format(row.getValue<Date>("status_date"), "LLL dd, yyyy")}
+      </div>
+    ),
   },
-  
   {
     accessorKey: "status",
-    header: "",
-    cell: ({ row }) => <Button>{row.getValue("status")}</Button>,
+    header: "Status",
+    cell: ({ row }) => (
+      <PaperStatusBadge status={row.getValue<SubmissionStatus>("status")} />
+    ),
+  },
+
+  {
+    id: "actions",
+    enableHiding: false,
+    cell: ({ row }) => {
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <MoreVertical className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuItem>Copy</DropdownMenuItem>
+            <DropdownMenuItem>View</DropdownMenuItem>
+            <DropdownMenuItem>Details</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    },
   },
 ];
 
-type DashboardTableProps = {
+type DashDataTableProps = {
   data: Submission[];
   label: string;
   subheading: string;
+  loading: boolean;
 };
 
-export function DashboardTable({ data, label, subheading }: DashboardTableProps) {
+export function DashboardTable({
+  data,
+  label,
+  subheading,
+  loading,
+}: DashDataTableProps) {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
@@ -172,7 +223,10 @@ export function DashboardTable({ data, label, subheading }: DashboardTableProps)
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  
+                  onClick={() =>
+                    router.push(`/submissions/${row.getValue("submission_id")}`)
+                  }
+                  className="cursor-pointer"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
@@ -184,6 +238,8 @@ export function DashboardTable({ data, label, subheading }: DashboardTableProps)
                   ))}
                 </TableRow>
               ))
+            ) : loading ? (
+              <TableLoaderSkeleton table={table} />
             ) : (
               <TableRow>
                 <TableCell

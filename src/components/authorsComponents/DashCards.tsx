@@ -1,28 +1,112 @@
+"use client";
+
 import Link from "next/link";
-import { Files, FileClock, FileCheck2 } from "lucide-react";
+import { Files, FileClock, FileCheck2, LucideProps } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ForwardRefExoticComponent, useEffect, useState } from "react";
+import { Skeleton } from "../ui/skeleton";
+import { Axios } from "@/lib/axios";
 
 export default function DashCards() {
-  const cards = [
+  const [cards, setCards] = useState<
+    {
+      title: string;
+      middle: number | null;
+      bottom: string | null;
+      Icon: ForwardRefExoticComponent<LucideProps>;
+    }[]
+  >([
     {
       title: "Total Submissions",
-      middle: "10",
-      bottom: "+2 submissions this year",
+      middle: null,
+      bottom: null,
       Icon: Files,
     },
     {
-      title: "Total Submissions",
-      middle: "10",
-      bottom: "+2 submissions this year",
+      title: "Submissions Pending",
+      middle: null,
+      bottom: null,
       Icon: FileClock,
     },
     {
-      title: "Total Submissions",
-      middle: "10",
-      bottom: "+2 submissions this year",
+      title: "Accepted",
+      middle: null,
+      bottom: null,
       Icon: FileCheck2,
     },
-  ];
+  ]);
+
+  useEffect(() => {
+    const getData = async () => {
+      // total submissions
+      let result = await Axios.get(
+        "editorial-manager/count?author_id=23456781"
+      );
+      let d = await result.data;
+      setCards((prev) => {
+        const n = [...prev];
+        n[0].middle = d.count;
+        return n;
+      });
+
+      result = await Axios.get(
+        `editorial-manager/count?author_id=23456781&year=${new Date().getFullYear()}`
+      );
+      d = await result.data;
+      setCards((prev) => {
+        const n = [...prev];
+        n[0].bottom = `${d.count > 0 ? "+" : ""}${
+          d.count
+        } submissions this year`;
+        return n;
+      });
+
+      // pending submissions
+      result = await Axios.get(
+        "editorial-manager/count?author_id=23456781&pending=true"
+      );
+      d = await result.data;
+      setCards((prev) => {
+        const n = [...prev];
+        n[1].middle = d.count;
+        return n;
+      });
+
+      result = await Axios.get(
+        `editorial-manager/count?author_id=23456781&pending=true&year=${new Date().getFullYear()}`
+      );
+      d = await result.data;
+      setCards((prev) => {
+        const n = [...prev];
+        n[1].bottom = `${d.count > 0 ? "+" : ""}${d.count} pending this year`;
+        return n;
+      });
+
+      // accepted submissions
+      result = await Axios.get(
+        "editorial-manager/count?author_id=23456781&accepted=true"
+      );
+      d = await result.data;
+      setCards((prev) => {
+        const n = [...prev];
+        n[2].middle = d.count;
+        return n;
+      });
+
+      result = await Axios.get(
+        `editorial-manager/count?author_id=23456781&accepted=true&year=${new Date().getFullYear()}`
+      );
+      d = await result.data;
+      setCards((prev) => {
+        const n = [...prev];
+        n[2].bottom = `${d.count > 0 ? "+" : ""}${d.count} accepted this year`;
+        return n;
+      });
+    };
+
+    getData();
+  }, []);
+
   return (
     <div className="flex w-full flex-col">
       <div className="flex flex-col gap-4">
@@ -38,8 +122,20 @@ export default function DashCards() {
                 <card.Icon size={20} className="text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-4xl font-bold">{card.middle}</div>
-                <p className="text-xs text-muted-foreground">{card.bottom}</p>
+                {card.middle ? (
+                  <div className="text-4xl font-bold">
+                    {card.middle && card.middle < 10
+                      ? card.middle?.toString().padStart(2, "0")
+                      : card.middle}
+                  </div>
+                ) : (
+                  <Skeleton className="w-32 h-12" />
+                )}
+                {card.bottom ? (
+                  <p className="text-xs text-muted-foreground">{card.bottom}</p>
+                ) : (
+                  <Skeleton className="w-56 h-4 mt-2" />
+                )}
               </CardContent>
             </Card>
           ))}
