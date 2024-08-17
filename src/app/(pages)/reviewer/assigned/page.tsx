@@ -8,7 +8,12 @@ function Assigned() {
 
   return (
     <Column className="flex-1">
-      <DashboardTable data={data} label="Assigned Papers" subheading="This is the list of papers assigned to you."/>
+      <DashboardTable
+        loading={false}
+        data={data}
+        label="Assigned Papers"
+        subheading="This is the list of papers assigned to you."
+      />
     </Column>
   );
 }

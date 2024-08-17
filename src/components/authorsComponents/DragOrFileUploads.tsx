@@ -15,13 +15,14 @@ import {
 } from "firebase/storage";
 import { storage } from "@/utils/firebase.config";
 import { genRandomString } from "@/lib/utils";
+import { Axios } from "@/lib/axios";
 
-export interface Files {
-  id: string;
-  fileName: string;
-  fileSize: number;
-  fileType: string;
-  file: Blob;
+export interface Files
+  extends Pick<
+    EMFile,
+    "file_id" | "file_name" | "file_size" | "file_type" | "file_url"
+  > {
+  file: File;
 }
 
 export default function DragOrFileUploads() {
@@ -30,6 +31,7 @@ export default function DragOrFileUploads() {
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [title, setTitle] = useState("");
   const [keywords, setKeywords] = useState("");
+  const [originalSubmissionId, setOriginalSubmissionId] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   const handleDrag = (event: React.DragEvent<HTMLDivElement>) => {
@@ -43,17 +45,18 @@ export default function DragOrFileUploads() {
       const fileSizeKB = Math.round(file.size / 1024);
       const fileType = file.name.split(".").pop();
       return {
-        id: `${files.length + index}`,
-        fileName: file.name,
-        fileSize: fileSizeKB,
-        fileType: fileType ? fileType.toLowerCase() : "",
-        file: file as Blob,
+        file_id: genRandomString(12, true),
+        file_name: file.name,
+        file_size: fileSizeKB,
+        file_type: fileType ? fileType.toLowerCase() : "",
+        file_url: "",
+        file: file,
       };
     });
     const uniqueNewFiles = newFiles.filter(
       (newFile) =>
         !files.some(
-          (existingFile) => existingFile.fileName === newFile.fileName
+          (existingFile) => existingFile.file_name === newFile.file_name
         )
     );
 
@@ -68,18 +71,19 @@ export default function DragOrFileUploads() {
         const fileType = file.name.split(".").pop();
 
         return {
-          id: `${files.length + index}`,
-          fileName: file.name,
-          fileSize: fileSizeKB,
-          fileType: fileType ? fileType.toLowerCase() : "",
-          file: file as Blob,
+          file_id: genRandomString(12),
+          file_name: file.name,
+          file_size: fileSizeKB,
+          file_type: fileType ? fileType.toLowerCase() : "",
+          file_url: "",
+          file: file,
         };
       });
 
       const uniqueNewFiles = newFiles.filter(
         (newFile) =>
           !files.some(
-            (existingFile) => existingFile.fileName === newFile.fileName
+            (existingFile) => existingFile.file_name === newFile.file_name
           )
       );
 
@@ -87,86 +91,62 @@ export default function DragOrFileUploads() {
     }
   };
 
-  // BROKEN!!! BROKEN!! Do not use it!!
   const handleSubmit = async () => {
     setSubmitting(true);
-    const submission_id = genRandomString(12);
-    const submission: Submission = {
-      submission_id: submission_id,
-      author_id: "4c8dfa21-f9df-4461-b356-15df2c08b108",
-      initial_submission_id: "",
-      keywords: keywords,
-      paper_title: title,
-      status: SubmissionStatus.Submitted,
-      submission_date: new Date(),
-      status_date: new Date(),
-    };
-    fetch("/api/papers/submit", {
-      method: "POST",
-      body: JSON.stringify(submission),
-      cache: "no-store",
-    });
-    files.forEach((file) => {
-      // const storage = getStorage();
-      const storageRef = ref(
-        storage,
-        file.fileName + new Date().getTime().toString()
+
+    try {
+      const submission = {
+        submission_id: genRandomString(12, false, true),
+        initial_submission_id: originalSubmissionId || null,
+        author_id: "23456781",
+        status: "Pending",
+        submission_date: new Date(),
+        status_date: new Date(),
+        paper_title: title,
+        keywords: keywords,
+      };
+
+      await Axios.post(
+        // "http://bike-csecu.com:5000/api/editorial-manager/submission/",
+        "/editorial-manager/submission/",
+        submission
       );
 
-      const uploadTask = uploadBytesResumable(storageRef, file.file);
-
-      // Register three observers:
-      // 1. 'state_changed' observer, called any time the state changes
-      // 2. Error observer, called on failure
-      // 3. Completion observer, called on successful completion
-      uploadTask.on(
-        "state_changed",
-        (snapshot) => {
-          // Observe state change events such as progress, pause, and resume
-          // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
-          const progress =
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log("Upload is " + progress + "% done");
-          switch (snapshot.state) {
-            case "paused":
-              console.log("Upload is paused");
-              break;
-            case "running":
-              console.log("Upload is running");
-              break;
-          }
-        },
-        (error) => {
-          // Handle unsuccessful uploads
-        },
-        () => {
-          // Handle successful uploads on complete
-          // For instance, get the download URL: https://firebasestorage.googleapis.com/...
-          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            console.log("File available at", downloadURL);
-            const f: EMFile = {
-              file_id: genRandomString(12),
-              file_name: file.fileName,
-              file_size: file.fileSize,
-              file_type: file.fileType,
-              file_url: downloadURL,
-              submission_id: submission_id,
-            };
-            fetch("/api/file/upload", {
-              method: "POST",
-              body: JSON.stringify(f),
-              cache: "no-store",
-            });
-          });
+      const formData = new FormData();
+      files.forEach((file, index) => formData.append("items", file.file));
+      const response = await Axios.post(
+        // "http://bike-csecu.com:5000/api/upload",
+        "/upload",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         }
       );
-    });
 
-    setTimeout(() => {
-      setSubmitting(false);
-      setFiles([]);
+      if (response.status === 201) {
+        const data: any = response.data;
+        let submissionFiles: EMFile[] = data.files.map((f: any): EMFile => {
+          const { file, ...rest } = files.find(
+            (file) => file.file_name === f.originalname
+          )!;
+          return {
+            ...rest,
+            submission_id: submission.submission_id,
+            file_url: f.path,
+          };
+        });
+
+        await Axios.post("/editorial-manager/file", {
+          files: submissionFiles,
+        });
+      }
       setIsSubmitted(true);
-    }, 1000);
+    } catch (err) {
+      console.error(err);
+    }
+    setSubmitting(false);
   };
 
   return (
@@ -220,6 +200,23 @@ export default function DragOrFileUploads() {
           </div>
           <div className="mt-7">
             <Label className="font-semibold text-lg" htmlFor="">
+              Original Submission Id
+            </Label>
+            <Input
+              type="text"
+              placeholder="Write your paper title"
+              required
+              value={originalSubmissionId}
+              onChange={(e) => setOriginalSubmissionId(e.target.value)}
+              maxLength={12}
+            />
+            <p className="text-sm mt-2 text-muted-foreground">
+              If this is a resubmission, then provide the original submission
+              id.
+            </p>
+          </div>
+          <div className="mt-7">
+            <Label className="font-semibold text-lg" htmlFor="">
               Keywords<span className="text-red-500">*</span>
             </Label>
             <Input
@@ -234,10 +231,13 @@ export default function DragOrFileUploads() {
             </p>
           </div>
           <div className="mt-7">
-            <Button onClick={() => {}} disabled={!keywords || !title}>
+            <Button
+              onClick={handleSubmit}
+              disabled={!keywords || !title || submitting}
+            >
               {/* Submit */}
               {submitting ? (
-                <div className="animate-spin w-5 h-4 rounded-full border border-solid border-white" />
+                <div className="animate-spin w-5 h-5 rounded-full border-t border-solid border-white" />
               ) : (
                 "Submit"
               )}

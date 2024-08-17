@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import {
+  CellContext,
   ColumnDef,
   ColumnFiltersState,
   SortingState,
@@ -12,7 +13,14 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { CheckCircle2, MinusCircle, MoreVertical, XCircle } from "lucide-react";
+import {
+  ArrowDownToLine,
+  CheckCircle2,
+  File,
+  MinusCircle,
+  MoreVertical,
+  XCircle,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -43,67 +51,91 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import Paginations from "./Paginations";
+import { EMFile } from "@/types.d";
 
-export type ShowFiles = {
-  id: string;
-  fileName: string;
-  fileSize: number;
-  fileType: string;
-  file: Blob;
-};
+export interface ShowFiles
+  extends Pick<
+    EMFile,
+    "file_id" | "file_name" | "file_size" | "file_type" | "file_url"
+  > {
+  file?: File;
+}
+
+function ActionComponent({ row }: CellContext<ShowFiles, unknown>) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="h-8 w-8 p-0">
+          <MoreVertical className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="p-0 w-52">
+        <DropdownMenuLabel className="h-10 flex items-center px-3 py-1 border-b border-solid border-border">
+          Actions
+        </DropdownMenuLabel>
+        <a
+          href={`http://bike-csecu.com:5000/${row.original.file_url.substring(
+            7
+          )}`}
+          target="__blank"
+        >
+          <DropdownMenuItem className="gap-2 cursor-pointer p-2 h-10">
+            <File size="16" /> View File
+          </DropdownMenuItem>
+        </a>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
 
 export const columns: ColumnDef<ShowFiles>[] = [
   {
-    accessorKey: "fileName",
+    accessorKey: "file_name",
     header: "File Name",
-    cell: ({ row }) => <div className="">{row.getValue("fileName")}</div>,
+    cell: ({ row }) => {
+      return (
+        <div className="">
+          <a
+            href={`http://bike-csecu.com:5000/${row.original.file_url.substring(
+              7
+            )}`}
+            target="__blank"
+          >
+            {row.getValue("file_name")}
+          </a>
+        </div>
+      );
+    },
   },
   {
-    accessorKey: "fileSize",
+    accessorKey: "file_size",
     header: "File Size",
     cell: ({ row }) => (
       <div className="">
-        {row.getValue("fileSize")}
+        {row.getValue("file_size")}
         {" KB"}
       </div>
     ),
   },
 
   {
-    accessorKey: "fileType",
+    accessorKey: "file_type",
     header: "File Type",
-    cell: ({ row }) => <div className="">{row.getValue("fileType")}</div>,
+    cell: ({ row }) => <div className="">{row.getValue("file_type")}</div>,
   },
   {
     id: "actions",
     enableHiding: false,
-    cell: ({ row }) => {
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreVertical className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem>Copy</DropdownMenuItem>
-            <DropdownMenuItem>View</DropdownMenuItem>
-            <DropdownMenuItem>Details</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
+    cell: ActionComponent,
   },
 ];
 
-interface Files {
-  id: string;
-  fileName: string;
-  fileSize: number;
-  fileType: string;
-  file: Blob;
+export interface Files
+  extends Pick<
+    EMFile,
+    "file_id" | "file_name" | "file_size" | "file_type" | "file_url"
+  > {
+  file?: File;
 }
 
 interface DragDataTableProps {
@@ -140,8 +172,8 @@ const DragDataTable: React.FC<DragDataTableProps> = ({ files }) => {
 
   return (
     <div className="w-full">
-      <h1 className="text-3xl font-semibold pt-8">Submissions</h1>
-      <p>This is the list of your previous submissions.</p>
+      <h1 className="text-3xl font-semibold pt-8">Files</h1>
+      <p>This is the list of your uploaded files.</p>
       <div className="flex items-center py-4">
         <Input placeholder="Filter Uploads" className="max-w-sm" />
       </div>
@@ -191,7 +223,7 @@ const DragDataTable: React.FC<DragDataTableProps> = ({ files }) => {
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  NO PROPOSALS
+                  NO FILES
                 </TableCell>
               </TableRow>
             )}

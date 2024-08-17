@@ -3,28 +3,23 @@
 import Column from "@/components/Column";
 import DashCards from "@/components/authorsComponents/DashCards";
 import { DashDataTable } from "@/components/authorsComponents/DashDataTable";
-import getSubmissions from "@/lib/getSubmissions";
-import { Submission, Submission_E } from "@/types.d";
-import { submissions } from "@/utils/submissions";
+import { Axios } from "@/lib/axios";
+import { Submission } from "@/types.d";
 import React, { useEffect, useState } from "react";
 
 function Dashboard() {
-  // const data: Submission_E[] = submissions;
-
-  // const data: Submission[] = (await getSubmissions()).map(
-  //   (r) => r as Submission
-  // );
-  // const data = await getSubmissions();
-  const [data, setData] = useState<Submission[]>([]);
+  const [submissions, setSubmissions] = useState<Submission[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const getData = async () => {
-      const result = await fetch("/api/papers", {
-        method: "GET",
-        cache: "no-store",
-      });
-      const d = await result.json();
-      setData(d.result as Submission[]);
+      const result = await Axios.get(
+        // "http://bike-csecu.com:5000/api/editorial-manager/submission",
+        "/editorial-manager/submission"
+      );
+      const d = await result.data;
+      setSubmissions(d as Submission[]);
+      setLoading(false);
     };
 
     getData();
@@ -34,9 +29,10 @@ function Dashboard() {
     <Column className="flex-1">
       <DashCards />
       <DashDataTable
-        data={data}
+        data={submissions}
         label="Submissions"
         subheading="This is the list of your previous submissions"
+        loading={loading}
       />
     </Column>
   );

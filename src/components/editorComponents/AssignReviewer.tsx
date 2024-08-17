@@ -13,6 +13,7 @@ import {
 import {
   ArrowLeft,
   ArrowRight,
+  CheckCheck,
   ChevronLeft,
   ChevronRight,
   Delete,
@@ -38,7 +39,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { SubmissionStatus, Submission, Reviewer } from "@/types.d";
+import {
+  SubmissionStatus,
+  Submission,
+  Reviewer,
+  AssignedReviewer,
+} from "@/types.d";
 import {
   Select,
   SelectContent,
@@ -53,8 +59,11 @@ import Row from "../Row";
 import { useRouter } from "next/navigation";
 import PaperStatusBadge from "../PaperStatusBadge";
 import { Badge } from "../ui/badge";
+import TableLoaderSkeleton from "../TableLoaderSkeleton";
 
-export const columns: ColumnDef<Reviewer>[] = [
+export type AssignedReviewerType = Reviewer;
+
+export const columns: ColumnDef<AssignedReviewerType>[] = [
   {
     accessorKey: "teacher_id",
     header: "Reviewer ID",
@@ -99,25 +108,56 @@ export const columns: ColumnDef<Reviewer>[] = [
       );
     },
   },
+  {
+    id: "actions",
+    cell: ({ row, table }) => {
+      const props = table.options.meta as any;
+      const assigned = props?.assignedReviewers?.find(
+        (r: any) => r.teacher_id === row.original.teacher_id
+      );
+
+      return (
+        <Button
+          variant={assigned ? "outline" : "default"}
+          size="sm"
+          className="items-center gap-2 w-[120px]"
+          onClick={() => props?.onAssign(row.original)}
+          disabled={assigned || props?.assignedReviewers?.length == 2}
+          title={
+            props?.assignedReviewers?.length == 2
+              ? "Can not assign anymore reviewer(s)"
+              : "Assign as a reviewer"
+          }
+        >
+          <CheckCheck size={16} color={assigned ? "black" : "white"} />
+          {assigned ? "Assigned" : "Assign"}
+        </Button>
+      );
+    },
+  },
 ];
 
-type ReviewerTableProps = {
-  data: Reviewer[];
+type AssignReviewerProps = {
+  data: AssignedReviewerType[];
   label: string;
   subheading: string;
   showSearch?: boolean;
   itemsPerPage?: number[];
-  pageIndex?: number;
+  onAssign: (reviewer: Reviewer) => void;
+  assignedReviewers: AssignedReviewer[];
+  loading: boolean;
 };
 
-export function ReviewerTable({
+export function AssignReviewer({
   data,
   label,
   subheading,
   showSearch = true,
   itemsPerPage = [1, 2, 3, 4, 5, 10, 20, 30, 40, 50],
-  pageIndex = 0,
-}: ReviewerTableProps) {
+  onAssign,
+  assignedReviewers,
+  loading,
+}: AssignReviewerProps) {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
@@ -133,9 +173,13 @@ export function ReviewerTable({
     state: {
       columnFilters,
       pagination: {
-        pageSize: itemsPerPage[pageIndex],
+        pageSize: itemsPerPage[0],
         pageIndex: 0,
       },
+    },
+    meta: {
+      onAssign,
+      assignedReviewers,
     },
   });
 
@@ -197,6 +241,8 @@ export function ReviewerTable({
                   ))}
                 </TableRow>
               ))
+            ) : loading ? (
+              <TableLoaderSkeleton table={table} />
             ) : (
               <TableRow>
                 <TableCell
