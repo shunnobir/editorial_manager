@@ -33,7 +33,12 @@ function Layout({ children }: { children: React.ReactNode }) {
               Icon: LayoutDashboard,
               label: "Dashboard",
               href: "/reviewer/dashboard",
-            },
+          },
+          {
+            Icon: FilePlus2,
+            label: "Upload Reviewed Papers",
+            href: "/reviewer/reviewed",
+          },
             {
               Icon: FileStack,
               label: "Assigned",
