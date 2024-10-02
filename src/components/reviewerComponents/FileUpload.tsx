@@ -114,7 +114,9 @@ export default function FileUpload({
       );
 
       const formData = new FormData();
-      files.forEach((file, index) => formData.append("items", file.file));
+      files.forEach((file, index) =>
+        file.file ? formData.append("items", file.file) : null
+      );
       const response = await Axios.post(
         // "http://bike-csecu.com:5000/api/upload",
         "/upload",

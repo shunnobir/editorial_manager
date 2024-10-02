@@ -1,27 +1,4 @@
 "use client";
-import * as React from "react";
-import {
-  CellContext,
-  ColumnDef,
-  ColumnFiltersState,
-  Table as TableType,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
-import { AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import {
-  ArrowLeft,
-  ArrowRight,
-  ChevronLeft,
-  ChevronRight,
-  ClipboardPenLine,
-  Files,
-  MoreVertical,
-  Search,
-} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -39,12 +16,37 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Axios } from "@/lib/axios";
+import { cn } from "@/lib/utils";
+import { AssignedReviewer, Reviewer, Submission } from "@/types.d";
 import {
-  SubmissionStatus,
-  Submission,
-  Reviewer,
-  AssignedReviewer,
-} from "@/types.d";
+  CellContext,
+  ColumnDef,
+  ColumnFiltersState,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  Table as TableType,
+  useReactTable,
+} from "@tanstack/react-table";
+import { format } from "date-fns";
+import {
+  ArrowLeft,
+  ArrowRight,
+  ChevronLeft,
+  ChevronRight,
+  ClipboardPenLine,
+  Files,
+  MoreVertical,
+  Search,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import * as React from "react";
+import Column from "../Column";
+import Row from "../Row";
+import TableLoaderSkeleton from "../TableLoaderSkeleton";
+import Text from "../Text";
 import {
   Select,
   SelectContent,
@@ -52,19 +54,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { cn } from "@/lib/utils";
-import Column from "../Column";
-import Text from "../Text";
-import Row from "../Row";
-import { useRouter } from "next/navigation";
-import PopUp from "./PopUp";
 import { AssignedTable } from "./AssignedTable";
-import { format } from "date-fns";
-import { ReviewerTable } from "./ReviewerTable";
 import { AssignedReviewerType, AssignReviewer } from "./AssignReviewer";
-import { Axios } from "@/lib/axios";
-import { Skeleton } from "../ui/skeleton";
-import TableLoaderSkeleton from "../TableLoaderSkeleton";
 
 function ActionComponent({ row }: CellContext<Submission, unknown>) {
   const submission_id = React.useMemo(() => row.original.submission_id, [row]);
