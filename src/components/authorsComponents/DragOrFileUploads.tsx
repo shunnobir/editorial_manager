@@ -16,6 +16,7 @@ import {
 import { storage } from "@/utils/firebase.config";
 import { genRandomString } from "@/lib/utils";
 import { Axios } from "@/lib/axios";
+import useAuth from "@/hooks/useAuth";
 
 export interface Files
   extends Pick<
@@ -26,6 +27,8 @@ export interface Files
 }
 
 export default function DragOrFileUploads() {
+  const auth = useAuth();
+
   const [files, setFiles] = useState<Files[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
@@ -98,7 +101,8 @@ export default function DragOrFileUploads() {
       const submission = {
         submission_id: genRandomString(12, false, true),
         initial_submission_id: originalSubmissionId || null,
-        author_id: "23456781",
+        // author_id: "23456781",
+        author_id: auth!.user!.teacher_id,
         status: "Pending",
         submission_date: new Date(),
         status_date: new Date(),

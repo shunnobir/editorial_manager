@@ -52,16 +52,9 @@ import {
 } from "@/components/ui/pagination";
 import Paginations from "../authorsComponents/Paginations";
 import { EMFile } from "@/types.d";
+import { Attachments } from "./FileUpload";
 
-export interface ShowFiles
-  extends Pick<
-    EMFile,
-    "file_id" | "file_name" | "file_size" | "file_type" | "file_url"
-  > {
-  file?: File;
-}
-
-function ActionComponent({ row }: CellContext<ShowFiles, unknown>) {
+function ActionComponent({ row }: CellContext<Attachments, unknown>) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -74,7 +67,7 @@ function ActionComponent({ row }: CellContext<ShowFiles, unknown>) {
           Actions
         </DropdownMenuLabel>
         <a
-          href={`http://bike-csecu.com:5000/${row.original.file_url.substring(
+          href={`http://localhost:5000/${row.original.attachment_url.substring(
             7
           )}`}
           target="__blank"
@@ -88,40 +81,42 @@ function ActionComponent({ row }: CellContext<ShowFiles, unknown>) {
   );
 }
 
-export const columns: ColumnDef<ShowFiles>[] = [
+export const columns: ColumnDef<Attachments>[] = [
   {
-    accessorKey: "file_name",
+    accessorKey: "attachment_name",
     header: "File Name",
     cell: ({ row }) => {
       return (
         <div className="">
           <a
-            href={`http://bike-csecu.com:5000/${row.original.file_url.substring(
+            href={`http://localhost:5000/${row.original.attachment_url.substring(
               7
             )}`}
             target="__blank"
           >
-            {row.getValue("file_name")}
+            {row.getValue("attachment_name")}
           </a>
         </div>
       );
     },
   },
   {
-    accessorKey: "file_size",
+    accessorKey: "attachment_size",
     header: "File Size",
     cell: ({ row }) => (
       <div className="">
-        {row.getValue("file_size")}
+        {row.getValue("attachment_size")}
         {" KB"}
       </div>
     ),
   },
 
   {
-    accessorKey: "file_type",
+    accessorKey: "attachment_type",
     header: "File Type",
-    cell: ({ row }) => <div className="">{row.getValue("file_type")}</div>,
+    cell: ({ row }) => (
+      <div className="">{row.getValue("attachment_type")}</div>
+    ),
   },
   {
     id: "actions",
@@ -130,19 +125,11 @@ export const columns: ColumnDef<ShowFiles>[] = [
   },
 ];
 
-export interface Files
-  extends Pick<
-    EMFile,
-    "file_id" | "file_name" | "file_size" | "file_type" | "file_url"
-  > {
-  file?: File;
-}
-
 interface DragTableProps {
-  files: Files[];
+  attachments: Attachments[];
 }
 
-const DragTable: React.FC<DragTableProps> = ({ files }) => {
+const DragTable: React.FC<DragTableProps> = ({ attachments: files }) => {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );

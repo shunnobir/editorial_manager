@@ -1,5 +1,16 @@
 "use client";
-import * as React from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { cn } from "@/lib/utils";
+import { EMReview, Reviewer, Teacher, User } from "@/types.d";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -10,64 +21,32 @@ import {
   getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import {
-  ArrowLeft,
-  ArrowRight,
-  CheckCheck,
-  ChevronLeft,
-  ChevronRight,
-  Delete,
-  DeleteIcon,
-  MoreVertical,
-  Trash,
-  Trash2,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  SubmissionStatus,
-  Submission,
-  Reviewer,
-  AssignedReviewer,
-} from "@/types.d";
+import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { useRouter } from "next/navigation";
+import * as React from "react";
+import Column from "@/components/Column";
+import Row from "@/components/Row";
+import Text from "@/components/Text";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
-import { cn } from "@/lib/utils";
-import Column from "../Column";
-import Text from "../Text";
-import Row from "../Row";
-import { useRouter } from "next/navigation";
-import PaperStatusBadge from "../PaperStatusBadge";
-import { Badge } from "../ui/badge";
-import TableLoaderSkeleton from "../TableLoaderSkeleton";
+} from "@/components/ui/select";
+import { format } from "date-fns";
+import TableLoaderSkeleton from "./TableLoaderSkeleton";
 
-export type AssignedReviewerType = Reviewer;
+export type ReviewDetailData = EMReview &
+  Teacher &
+  Pick<User, "first_name" | "last_name" | "email">;
 
-export const columns: ColumnDef<AssignedReviewerType>[] = [
+export const columns: ColumnDef<ReviewDetailData>[] = [
   {
-    accessorKey: "teacher_id",
+    accessorKey: "reviewer_id",
     header: "Reviewer ID",
-    cell: ({ row }) => <div className="">{row.getValue("teacher_id")}</div>,
+    cell: ({ row }) => <div className="">{row.original.reviewer_id}</div>,
   },
 
   {
@@ -84,80 +63,35 @@ export const columns: ColumnDef<AssignedReviewerType>[] = [
     ),
   },
   {
-    accessorKey: "department_name",
-    header: "Department",
-    cell: ({ row }) => {
-      return <div className="">{row.getValue("department_name")}</div>;
-    },
-  },
-  {
-    accessorKey: "area_of_interest",
-    header: "Area of Interest",
+    accessorKey: "review_date",
+    header: "Review Date",
     cell: ({ row }) => {
       return (
-        <div className="flex flex-col gap-1">
-          {row
-            .getValue<string>("area_of_interest")
-            .split(",")
-            .map((interest, index) => (
-              <Badge className="py-1.5 px-3 rounded-sm w-fit" key={index}>
-                {interest}
-              </Badge>
-            ))}
-        </div>
-      );
-    },
-  },
-  {
-    id: "actions",
-    cell: ({ row, table }) => {
-      const props = table.options.meta as any;
-      const assigned = props?.assignedReviewers?.find(
-        (r: any) => r.teacher_id === row.original.teacher_id
-      );
-
-      return (
-        <Button
-          variant={assigned ? "outline" : "default"}
-          size="sm"
-          className="items-center gap-2 w-[120px]"
-          onClick={() => props?.onAssign(row.original)}
-          disabled={assigned || props?.assignedReviewers?.length == 2}
-          title={
-            props?.assignedReviewers?.length == 2
-              ? "Can not assign anymore reviewer(s)"
-              : "Assign as a reviewer"
-          }
-        >
-          <CheckCheck size={16} color={assigned ? "black" : "white"} />
-          {assigned ? "Assigned" : "Assign"}
-        </Button>
+        <div>{format(row.getValue<Date>("review_date"), "LLL dd, yyyy")}</div>
       );
     },
   },
 ];
 
-type AssignReviewerProps = {
-  data: AssignedReviewerType[];
+type ReviewTableProps = {
+  data: ReviewDetailData[];
   label: string;
   subheading: string;
   showSearch?: boolean;
   itemsPerPage?: number[];
-  onAssign: (reviewer: Reviewer) => void;
-  assignedReviewers: AssignedReviewer[];
-  loading: boolean;
+  pageIndex?: number;
+  loading?: boolean;
 };
 
-export function AssignReviewer({
+export function ReviewTable({
   data,
   label,
+  loading,
   subheading,
   showSearch = true,
   itemsPerPage = [1, 2, 3, 4, 5, 10, 20, 30, 40, 50],
-  onAssign,
-  assignedReviewers,
-  loading,
-}: AssignReviewerProps) {
+  pageIndex = 0,
+}: ReviewTableProps) {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
@@ -173,13 +107,9 @@ export function AssignReviewer({
     state: {
       columnFilters,
       pagination: {
-        pageSize: itemsPerPage[0],
+        pageSize: itemsPerPage[pageIndex],
         pageIndex: 0,
       },
-    },
-    meta: {
-      onAssign,
-      assignedReviewers,
     },
   });
 
@@ -194,7 +124,7 @@ export function AssignReviewer({
       {showSearch ? (
         <div className="flex items-center py-4">
           <Input
-            placeholder="Filter submissions"
+            placeholder={`Filter ${label.toLowerCase()}`}
             className="max-w-sm"
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
@@ -230,6 +160,12 @@ export function AssignReviewer({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  onClick={() =>
+                    router.push(
+                      `/reviews/${row.original.review_id}?submission_id=${row.original.submission_id}`
+                    )
+                  }
+                  className="cursor-pointer"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
@@ -249,29 +185,30 @@ export function AssignReviewer({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  NO PROPOSALS
+                  NO REVIEWS
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
       </div>
-      <DataTablePagination table={table} itemsPerPage={itemsPerPage} />
+      {/* will add here pagination*/}
+      <ReviewTablePagination table={table} itemsPerPage={itemsPerPage} />
     </div>
   );
 }
 
-interface DataTablePaginationProps<TData> {
+interface ReviewTablePaginationProps<TData> {
   table: TableType<TData>;
   className?: string;
   itemsPerPage?: number[];
 }
 
-function DataTablePagination<TData>({
+function ReviewTablePagination<TData>({
   table,
   className,
   itemsPerPage,
-}: DataTablePaginationProps<TData>) {
+}: ReviewTablePaginationProps<TData>) {
   return (
     <div className={cn("flex items-center justify-center px-2", className)}>
       <div className="flex flex-1 items-center justify-between space-x-6 lg:space-x-8">

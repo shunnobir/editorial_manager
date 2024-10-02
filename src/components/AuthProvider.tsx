@@ -1,6 +1,6 @@
 "use clinet";
 
-import { AuthContext, AuthValue } from "@/contexts/AuthContext";
+import { AuthContext, AuthProp } from "@/contexts/AuthContext";
 import React from "react";
 
 export default function AuthProvider({
@@ -8,7 +8,7 @@ export default function AuthProvider({
   value,
 }: {
   children: React.ReactNode;
-  value: AuthValue | null;
+  value: AuthProp | null;
 }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

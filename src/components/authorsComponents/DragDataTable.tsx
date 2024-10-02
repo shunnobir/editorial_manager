@@ -96,9 +96,7 @@ export const columns: ColumnDef<ShowFiles>[] = [
       return (
         <div className="">
           <a
-            href={`http://bike-csecu.com:5000/${row.original.file_url.substring(
-              7
-            )}`}
+            href={`http://localhost:5000/${row.original.file_url.substring(7)}`}
             target="__blank"
           >
             {row.getValue("file_name")}

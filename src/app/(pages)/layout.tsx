@@ -10,6 +10,7 @@ import {
   Check,
   FileCheck,
   FileCheck2,
+  FileInput,
   FilePlus2,
   FileStack,
   LayoutDashboard,
@@ -33,22 +34,22 @@ function Layout({ children }: { children: React.ReactNode }) {
               Icon: LayoutDashboard,
               label: "Dashboard",
               href: "/reviewer/dashboard",
-          },
-          {
-            Icon: FilePlus2,
-            label: "Upload Reviewed Papers",
-            href: "/reviewer/reviewed",
-          },
+            },
+            // {
+            //   Icon: FilePlus2,
+            //   label: "Upload Reviewed Papers",
+            //   href: "/reviewer/reviewed",
+            // },
             {
               Icon: FileStack,
-              label: "Assigned",
-              href: "/reviewer/assigned",
+              label: "Reviewed",
+              href: "/reviewer/reviewed",
             },
-            {
-              Icon: FileCheck2,
-              label: "Completed",
-              href: "/reviewer/completed",
-            },
+            // {
+            //   Icon: FileCheck2,
+            //   label: "Completed",
+            //   href: "/reviewer/completed",
+            // },
           ]
         : userRole?.role.toLowerCase() === "editor"
         ? [
@@ -63,9 +64,14 @@ function Layout({ children }: { children: React.ReactNode }) {
               href: "/editor/reviewers",
             },
             {
-              Icon: FileCheck,
+              Icon: FileInput,
               label: "Assigned",
               href: "/editor/assigned",
+            },
+            {
+              Icon: FileCheck,
+              label: "Reviewed",
+              href: "/editor/reviewed",
             },
           ]
         : [

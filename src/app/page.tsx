@@ -50,6 +50,7 @@ export default function Home() {
           password: user.password,
         })
       ).data;
+      console.log(data);
 
       const role: {
         isAuthor: boolean;
@@ -187,6 +188,7 @@ export default function Home() {
             e.preventDefault();
             handleLogin();
           }}
+          disabled={loggingIn}
         >
           {loggingIn ? (
             <Loader2 className="mr-2 h-6 w-6 animate-spin" />

@@ -7,21 +7,41 @@ import Row from "@/components/Row";
 import Text from "@/components/Text";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { EMFile, SubmissionDetail } from "@/types.d";
-import { useRouter } from "next/navigation";
+import { EMFile, EMReview, SubmissionDetail } from "@/types.d";
+import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useMemo, useState } from "react";
 import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import DragDataTable from "@/components/authorsComponents/DragDataTable";
 import { Axios } from "@/lib/axios";
+import { useUserRole } from "@/hooks/useUserRole";
+import { FileCheck, PenLine } from "lucide-react";
+import useAuth from "@/hooks/useAuth";
 
 function SubmissionPage({ params }: { params: { id: string } }) {
   const router = useRouter();
+  const pathname = usePathname();
+  const role = useUserRole();
+  const auth = useAuth();
+
+  const isReviewer = role!.role.toLowerCase() === "reviewer";
+  const isAuthor = role!.role.toLowerCase() === "author";
+  const isEditor = role!.role.toLowerCase() === "editor";
 
   const [submission, setSubmission] = useState<SubmissionDetail | null>(null);
   const [files, setFiles] = useState<EMFile[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hasReviews, setHasReviews] = useState(false);
+  const [reviews, setReviews] = useState<EMReview[]>(
+    []
+  ); /* only one review will be set for the reviewer */
+
+  const canAuthorSeeReview = useMemo(() => {
+    return (
+      isAuthor && reviews.length === 2 && submission?.status === "Accepted"
+    );
+  }, [isAuthor, reviews.length, submission?.status]);
 
   const submissionType = useMemo(
     () => (submission?.initial_submission_id !== null ? "Revised" : "Original"),
@@ -31,14 +51,12 @@ function SubmissionPage({ params }: { params: { id: string } }) {
   useEffect(() => {
     const getSubmission = async () => {
       const result = await Axios.get(
-        // `http://bike-csecu.com:5000/api/editorial-manager/submission/${params.id}`,
         `/editorial-manager/submission/${params.id}`
       );
       const d: { submission: SubmissionDetail } = await result.data;
       setSubmission(d.submission);
 
       const f = await Axios.get(
-        // `http://bike-csecu.com:5000/api/editorial-manager/file?submission_id=${params.id}`,
         `/editorial-manager/file?submission_id=${params.id}`
       );
       const fs: { message: string; files: EMFile[] } = await f.data;
@@ -46,16 +64,45 @@ function SubmissionPage({ params }: { params: { id: string } }) {
       setLoading(false);
     };
 
+    const isReviewed = async () => {
+      const result = await Axios.get(
+        `/editorial-manager/submission/${params.id}/reviews`
+      );
+      const reviews = result.data.reviews;
+      setHasReviews(
+        role!.role.toLowerCase() === "author" && reviews.length === 2
+      );
+    };
+
+    const getReview = async () => {
+      const result = await Axios.get(
+        `/editorial-manager/submission/${params.id}/reviews`
+      );
+      const reviews: EMReview[] = result.data.reviews;
+      setReviews(
+        reviews.filter(
+          (review) => review.reviewer_id === auth!.user!.teacher_id
+        )
+      );
+    };
+
     getSubmission();
-  }, [params]);
+    isReviewed();
+    getReview();
+  }, [params, role, auth]);
 
   if (loading || !submission) {
     return (
       <Page className="gap-[30px] flex-col">
-        <Row className="h-fit gap-2.5">
-          <Text className="text-3xl font-medium">Submission</Text>
-          <Skeleton className="w-24 h-6 rounded-sm" />
-          <Skeleton className="w-24 h-6 rounded-sm" />
+        <Row className="flex-1 items-center justify-between">
+          <Row className="h-fit gap-2.5">
+            <Text className="text-3xl font-medium">Submission</Text>
+            <Skeleton className="w-24 h-6 rounded-sm" />
+            <Skeleton className="w-24 h-6 rounded-sm" />
+          </Row>
+          {role!.role.toLowerCase() === "reviewer" ? (
+            <Skeleton className="w-24 h-6 rounded-sm" />
+          ) : null}
         </Row>
 
         <Column className="gap-5">
@@ -106,20 +153,64 @@ function SubmissionPage({ params }: { params: { id: string } }) {
 
   return (
     <Page className="gap-[30px] flex-col">
-      <Row className="h-fit gap-2.5">
-        <Text className="text-3xl font-medium">Submission</Text>
-        <Badge className="py-0.5 px-2 rounded-sm h-fit w-fit">
-          {submissionType}
-        </Badge>
-        <Button
-          variant="outline"
-          className="py-0.5 px-4 rounded-sm h-fit w-fit"
-          onClick={() => router.push("#")}
-        >
-          <Text variant="primary" className="text-xs">
-            See Author
-          </Text>
-        </Button>
+      <Row className="flex-1 items-center justify-between">
+        <Row className="h-fit gap-2.5">
+          <Text className="text-3xl font-medium">Submission</Text>
+          <Badge className="py-0.5 px-2 rounded-sm h-fit w-fit">
+            {submissionType}
+          </Badge>
+          <Button
+            variant="outline"
+            className="py-0.5 px-4 rounded-sm h-fit w-fit"
+            onClick={() => router.push("#")}
+          >
+            <Text variant="primary" className="text-xs">
+              See Author
+            </Text>
+          </Button>
+        </Row>
+        {isReviewer ? (
+          reviews.length >= 1 &&
+          reviews.find(
+            (review) => review.reviewer_id === auth?.user?.teacher_id
+          ) !== undefined ? (
+            <Button
+              className="gap-2"
+              onClick={() =>
+                router.push(
+                  `/reviews/${
+                    reviews.find(
+                      (review) => review.reviewer_id === auth?.user?.teacher_id
+                    )!.review_id
+                  }?submission_id=${params.id}`
+                )
+              }
+            >
+              <FileCheck size={18} className="text-current" />
+              Show Review
+            </Button>
+          ) : (
+            <Button
+              className="gap-2"
+              onClick={() =>
+                router.push(
+                  `/reviewer/review?submission_id=${params.id}&title=${submission.paper_title}`
+                )
+              }
+            >
+              <PenLine size={18} className="text-current" />
+              Review
+            </Button>
+          )
+        ) : (isAuthor && canAuthorSeeReview) || isEditor ? (
+          <Button
+            className="gap-2"
+            onClick={() => router.push(`/reviews?submission_id=${params.id}`)}
+          >
+            <FileCheck size={18} className="text-current" />
+            Show Reviews
+          </Button>
+        ) : null}
       </Row>
 
       <Column className="gap-5">

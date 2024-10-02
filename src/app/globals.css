@@ -66,6 +66,13 @@
     --radius: 0.75rem;
   }
 }
+/* 
+*,
+*::after,
+*::before {
+  font-family: "Noto Serif", "Times New Roman", Times, serif;
+  letter-spacing: 0.05em;
+} */
 
 @layer base {
   * {

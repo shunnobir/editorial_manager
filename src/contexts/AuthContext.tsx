@@ -3,7 +3,6 @@ import { createContext } from "react";
 
 export type UserType = {
   user: User & Teacher;
-  // role: "Author" | "Editor" | "Reviewer";
   role: Role[];
   session_id: string;
 };
