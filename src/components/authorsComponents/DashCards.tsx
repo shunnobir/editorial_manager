@@ -7,7 +7,7 @@ import { ForwardRefExoticComponent, useEffect, useState } from "react";
 import { Skeleton } from "../ui/skeleton";
 import { Axios } from "@/lib/axios";
 
-export default function DashCards() {
+export default function DashCards({ author_id }: { author_id: number }) {
   const [cards, setCards] = useState<
     {
       title: string;
@@ -40,7 +40,7 @@ export default function DashCards() {
     const getData = async () => {
       // total submissions
       let result = await Axios.get(
-        "editorial-manager/count?author_id=23456781"
+        `editorial-manager/count?author_id=${author_id}`
       );
       let d = await result.data;
       setCards((prev) => {
@@ -50,7 +50,7 @@ export default function DashCards() {
       });
 
       result = await Axios.get(
-        `editorial-manager/count?author_id=23456781&year=${new Date().getFullYear()}`
+        `editorial-manager/count?author_id=${author_id}&year=${new Date().getFullYear()}`
       );
       d = await result.data;
       setCards((prev) => {
@@ -63,7 +63,7 @@ export default function DashCards() {
 
       // pending submissions
       result = await Axios.get(
-        "editorial-manager/count?author_id=23456781&pending=true"
+        `editorial-manager/count?author_id=${author_id}&pending=true`
       );
       d = await result.data;
       setCards((prev) => {
@@ -73,7 +73,7 @@ export default function DashCards() {
       });
 
       result = await Axios.get(
-        `editorial-manager/count?author_id=23456781&pending=true&year=${new Date().getFullYear()}`
+        `editorial-manager/count?author_id=${author_id}&pending=true&year=${new Date().getFullYear()}`
       );
       d = await result.data;
       setCards((prev) => {
@@ -84,7 +84,7 @@ export default function DashCards() {
 
       // accepted submissions
       result = await Axios.get(
-        "editorial-manager/count?author_id=23456781&accepted=true"
+        `editorial-manager/count?author_id=${author_id}&accepted=true`
       );
       d = await result.data;
       setCards((prev) => {
@@ -94,7 +94,7 @@ export default function DashCards() {
       });
 
       result = await Axios.get(
-        `editorial-manager/count?author_id=23456781&accepted=true&year=${new Date().getFullYear()}`
+        `editorial-manager/count?author_id=${author_id}&accepted=true&year=${new Date().getFullYear()}`
       );
       d = await result.data;
       setCards((prev) => {
@@ -105,7 +105,7 @@ export default function DashCards() {
     };
 
     getData();
-  }, []);
+  }, [author_id]);
 
   return (
     <div className="flex w-full flex-col">
@@ -113,7 +113,6 @@ export default function DashCards() {
         <div className="grid gap-7 grid-cols-4">
           {cards.map((card, index) => (
             <Card key={index}>
-              {" "}
               {/* Added key prop for unique identification */}
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-md font-medium">
@@ -122,9 +121,9 @@ export default function DashCards() {
                 <card.Icon size={20} className="text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                {card.middle ? (
+                {card.middle !== null ? (
                   <div className="text-4xl font-bold">
-                    {card.middle && card.middle < 10
+                    {card.middle !== null && card.middle < 10
                       ? card.middle?.toString().padStart(2, "0")
                       : card.middle}
                   </div>

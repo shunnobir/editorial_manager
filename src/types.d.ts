@@ -70,6 +70,15 @@ export interface EMFile {
   file_type: string;
 }
 
+export interface EMAttachment {
+  attachment_id: string;
+  review_id: string;
+  attachment_size: number;
+  attachment_url: string;
+  attachment_name: string;
+  attachment_type: string;
+}
+
 export interface Submission_E extends Submission {
   status_history: SubmissionStatusHistory[];
 }
@@ -89,6 +98,21 @@ export interface Reviewer {
   first_name: string;
   last_name: string;
   email: string;
+}
+
+export interface EMReview {
+  review_id: string;
+  submission_id: string;
+  reviewer_id: number;
+  review_date: Date;
+}
+
+export interface ReviewDetail
+  extends Review,
+    Teacher,
+    Submission,
+  Pick<User, "first_name" | "last_name"> {
+  
 }
 
 export interface AssignedReviewer extends Reviewer {

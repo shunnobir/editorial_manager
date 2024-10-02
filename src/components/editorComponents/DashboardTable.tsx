@@ -84,15 +84,11 @@ function ActionComponent({ row }: CellContext<Submission, unknown>) {
 
   const handleOnAssign = async (reviewer: Reviewer) => {
     if (assignedReviewers.length == 2) return;
-    await Axios.post(
-      // "http://bike-csecu.com:5000/api/editorial-manager/reviewer/assign-proposal",
-      `/editorial-manager/reviewer/assign-proposal`,
-      {
-        submission_id: row.original.submission_id,
-        reviewer_id: reviewer.teacher_id,
-        assigned_date: new Date(),
-      }
-    );
+    await Axios.post(`/editorial-manager/reviewer/assign-proposal`, {
+      submission_id: row.original.submission_id,
+      reviewer_id: reviewer.teacher_id,
+      assigned_date: new Date(),
+    });
     setAssignedReviewers((prev) => [
       ...prev,
       { ...reviewer, submission_id: row.original.submission_id },
@@ -102,7 +98,6 @@ function ActionComponent({ row }: CellContext<Submission, unknown>) {
   const handleOnRemove = async (reviewer: Reviewer) => {
     if (assignedReviewers.length == 0) return;
     await Axios.delete(
-      // "http://bike-csecu.com:5000/api/editorial-manager/reviewer/assigned",
       `/editorial-manager/reviewer/assigned?reviewer_id=${reviewer.teacher_id}&submission_id=${row.original.submission_id}`
     );
     setAssignedReviewers((prev) =>
@@ -112,12 +107,8 @@ function ActionComponent({ row }: CellContext<Submission, unknown>) {
 
   React.useEffect(() => {
     const getReviewers = async () => {
-      const result = await Axios.get(
-        // "http://bike-csecu.com:5000/api/editorial-manager/reviewer",
-        `/editorial-manager/reviewer`
-      );
+      const result = await Axios.get(`/editorial-manager/reviewer`);
       const assignedReviewers = await Axios.get(
-        //`http://bike-csecu.com:5000/api/editorial-manager/reviewer/assigned?submission_id=${row.getValue("submission_id")}`
         `/editorial-manager/reviewer/assigned?submission_id=${submission_id}`
       );
       const d = await result.data;

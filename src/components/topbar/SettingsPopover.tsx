@@ -36,7 +36,7 @@ export default function SettingsPopover() {
           />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="p-0 w-64">
+      <PopoverContent className="p-0 w-64" align="end">
         <div className="flex flex-col">
           <div className="p-4">
             <h4 className="font-medium leading-none">Settings</h4>
