@@ -4,7 +4,6 @@ import Column from "@/components/Column";
 import FileUpload from "@/components/reviewerComponents/FileUpload";
 import useAuth from "@/hooks/useAuth";
 import { useSearchParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
 
 export default function ReviewPage() {
   const auth = useAuth();
